@@ -1,0 +1,38 @@
+name: Service Order CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'service-order/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'service-order/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./service-order
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: './service-order/package-lock.json'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm run test --if-present
+
+      - name: Validate Docker Build
+        run: docker build -t flowpay-inventory:test .

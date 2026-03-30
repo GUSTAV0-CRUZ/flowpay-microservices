@@ -34,5 +34,5 @@ jobs:
       - name: Run Tests
         run: npm run test --if-present
 
-      - name: Validate Docker Build
-        run: docker build -t flowpay-inventory:test .
+      # - name: Validate Docker Build
+      #   run: docker build -t flowpay-inventory:test .

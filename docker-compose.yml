@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # infra
+  # INFRA
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -13,12 +13,52 @@ services:
     networks:
       - flowpay-network
 
-# microservices
+  mongo-inventory:
+    image: mongo:latest
+    container_name: mongo-inventory
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_inventory_data:/data/db
+    networks:
+      - flowpay-network
 
-# persistence data
+  # MICROSERVICES
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway-local
+    restart: always
+    ports:
+      - "8080:3000"
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      - rabbitmq
+    networks:
+      - flowpay-network
+
+  inventory-product:
+    build:
+      context: ./inventory-product
+      dockerfile: Dockerfile
+    container_name: inventory-product
+    restart: always
+    env_file:
+      - ./inventory-product/.env
+    depends_on:
+      - rabbitmq
+      - mongo-inventory
+    networks:
+      - flowpay-network
+
+# PERSISTENCE DATA
 volumes:
   rabbitmq_data:
+  mongo_inventory_data:
 
 networks:
   flowpay-network:
     driver: bridge
+    

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # INFRA
   rabbitmq:
@@ -17,11 +15,14 @@ services:
     image: mongo:latest
     container_name: mongo-inventory
     ports:
-      - "27018:27017"
+      - "27017:27017"
     volumes:
       - mongo_inventory_data:/data/db
     networks:
       - flowpay-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
 
   # MICROSERVICES
   api-gateway:

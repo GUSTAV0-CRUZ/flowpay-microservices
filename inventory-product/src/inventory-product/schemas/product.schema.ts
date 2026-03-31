@@ -16,7 +16,12 @@ export class ProductSchemaDb implements Product {
   @Prop({ type: String, isRequired: true })
   code: string;
 
-  @Prop({ type: String, enum: StatusProductEnum, isRequired: true })
+  @Prop({
+    type: String,
+    enum: StatusProductEnum,
+    isRequired: true,
+    default: StatusProductEnum.AVAILABLE,
+  })
   status: StatusProductEnum;
 }
 

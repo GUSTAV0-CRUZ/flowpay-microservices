@@ -1,23 +1,43 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, MessagePattern } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { InventoryProductService } from './inventory-product.service';
+import { ChangeStatusInterface } from './interfaces/change-status.interface';
 
 @Controller('inventory-product')
 export class InventoryProductController {
+  constructor(
+    private readonly inventoryProductService: InventoryProductService,
+  ) {}
+
   @MessagePattern('findAll-inventory')
-  findAll() {}
+  findAll() {
+    return this.inventoryProductService.findAll();
+  }
 
   @MessagePattern('findOne-inventory')
-  findOne() {}
+  findOne(@Payload() id: string) {
+    return this.inventoryProductService.findOne(id);
+  }
 
   @MessagePattern('findPerStatus-inventory')
-  findPerStatus() {}
+  findPerStatus() {
+    return this.inventoryProductService.findPerStatus();
+  }
 
   @EventPattern('createProduct-inventory')
-  createProduct() {}
+  createProduct(@Payload() createProductDto: CreateProductDto) {
+    return this.inventoryProductService.createProduct(createProductDto);
+  }
 
   @EventPattern('deleteProduct-inventory')
-  deleteProduct() {}
+  deleteProduct(@Payload() id: string) {
+    return this.inventoryProductService.deleteProduct(id);
+  }
 
   @EventPattern('changeStatus-inventory')
-  changeStatus() {}
+  changeStatus(@Payload() changeStatusInterface: ChangeStatusInterface) {
+    const { id, statusProduct } = changeStatusInterface;
+    return this.inventoryProductService.changeStatus(id, statusProduct);
+  }
 }

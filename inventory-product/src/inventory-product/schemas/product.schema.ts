@@ -13,7 +13,7 @@ export class ProductSchemaDb implements Product {
   @Prop({ type: Number, isRequired: true })
   price: number;
 
-  @Prop({ type: String, isRequired: true })
+  @Prop({ type: String, isRequired: true, unique: true })
   code: string;
 
   @Prop({

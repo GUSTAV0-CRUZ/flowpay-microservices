@@ -1,42 +1,106 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ChangeStatusDto } from './dtos/change-status.dto';
+import { ProductRepository } from './repository/product.repository';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class InventoryProductService {
   private readonly logger = new Logger(InventoryProductService.name);
 
-  findAll() {
+  constructor(private readonly productRepository: ProductRepository) {}
+
+  async findAll() {
     this.logger.log(`method: ${this.findAll.name}`);
-    return 'findAll';
+    try {
+      return await this.productRepository.findAll();
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     this.logger.log(`method: ${this.findOne.name}, payload: ${id}`);
-    return `finOne: ${id}`;
+    try {
+      const product = await this.productRepository.findOneById(id);
+
+      if (!product) throw new RpcException('product not found');
+
+      return product;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.path === '_id') throw new RpcException('Type of id invalid');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
   }
 
-  findPerStatus() {
+  async findPerStatus() {
     this.logger.log(`method: ${this.findPerStatus.name}`);
-    return 'finPerstatus';
+    try {
+      return await this.productRepository.findPerStatus();
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
   }
 
-  createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto) {
     this.logger.log(
       `method: ${this.createProduct.name}, payload: ${JSON.stringify(createProductDto)}`,
     );
-    return `createProduct: ${createProductDto.name}`;
+    try {
+      return await this.productRepository.createProduct(createProductDto);
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.code === 11000)
+        throw new RpcException('key "code" is duplicate');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error?.message);
+    }
   }
 
-  deleteProduct(id: string) {
-    this.logger.log(`method: ${this.deleteProduct.name}`);
-    return `deleteProduct: ${id}`;
+  async deleteProduct(id: string) {
+    this.logger.log(`method: ${this.deleteProduct.name}, id: ${id}`);
+    try {
+      const product = await this.productRepository.deleteProduct(id);
+
+      if (!product) throw new RpcException('product not found');
+
+      return product;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.path === '_id') throw new RpcException('Type of id invalid');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
   }
 
-  changeStatus(id: string, changeStatusDto: ChangeStatusDto) {
+  async changeStatus(id: string, changeStatusDto: ChangeStatusDto) {
     this.logger.log(
       `method: ${this.changeStatus.name}, payload: ${id} and ${JSON.stringify(changeStatusDto)}`,
     );
-    return `changeStatus: id - ${id}, status - ${changeStatusDto.status}`;
+    try {
+      const product = await this.productRepository.changeStatus(
+        id,
+        changeStatusDto,
+      );
+
+      if (!product) throw new RpcException('product not found');
+
+      return product;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error?.path === '_id') throw new RpcException('Type of id invalid');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
   }
 }

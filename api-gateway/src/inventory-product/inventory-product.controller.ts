@@ -21,9 +21,9 @@ export class InventoryProductController {
       clientProxyService.getClientProxyInventoryProduct();
   }
 
-  @Get()
-  findAll() {
-    return this.serviceInventoryProduct.send('findAll-inventory', '');
+  @Get(':id/perStatus')
+  findAllStatusAvailable() {
+    return this.serviceInventoryProduct.send('findPerStatus-inventory', '');
   }
 
   @Get(':id')
@@ -33,9 +33,9 @@ export class InventoryProductController {
 
   // remove methods after tests //////////////////////////////////////////
   // remove-me
-  @Get(':id/perStatus')
-  findPerStatus() {
-    return this.serviceInventoryProduct.send('findPerStatus-inventory', '');
+  @Get()
+  findAll() {
+    return this.serviceInventoryProduct.send('findAll-inventory', '');
   }
 
   // remove-me
@@ -49,7 +49,7 @@ export class InventoryProductController {
 
   // remove-me
   @Delete(':id')
-  deleteProduct(@Param() id: string) {
+  deleteProduct(@Param('id') id: string) {
     return this.serviceInventoryProduct.emit('deleteProduct-inventory', id);
   }
 

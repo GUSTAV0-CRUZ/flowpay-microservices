@@ -8,7 +8,7 @@ GET {{baseUrl}}/inventory-product
 
 ###
 # @name inventoryProductGetOne
-GET {{baseUrl}}/inventory-product/id122344
+GET {{baseUrl}}/inventory-product/69cbe2736f4f01e78e83c3f8
 
 ###
 # @name inventoryProductGetAllPerStatus
@@ -27,11 +27,11 @@ Content-Type: application/json
 
 ###
 # @name inventoryProductDelete
-DELETE  {{baseUrl}}/inventory-product/id122344
+DELETE  {{baseUrl}}/inventory-product/69cbe2736f4f01e78e83c7f8
 
 ###
 # @name inventoryProductPatch
-PATCH  {{baseUrl}}/inventory-product/id122344
+PATCH  {{baseUrl}}/inventory-product/69cbf8c78638337c910bee74
 Content-Type: application/json
 
 {

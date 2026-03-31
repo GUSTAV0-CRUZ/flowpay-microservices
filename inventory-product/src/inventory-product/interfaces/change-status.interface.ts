@@ -1,6 +1,6 @@
-import { StatusProductEnum } from '../enums/status-product.enum';
+import { ChangeStatusDto } from '../dtos/change-status.dto';
 
 export class ChangeStatusInterface {
   id: string;
-  statusProduct: StatusProductEnum;
+  changeStatusDto: ChangeStatusDto;
 }

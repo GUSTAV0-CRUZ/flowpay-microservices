@@ -37,7 +37,7 @@ export class InventoryProductController {
 
   @EventPattern('changeStatus-inventory')
   changeStatus(@Payload() changeStatusInterface: ChangeStatusInterface) {
-    const { id, statusProduct } = changeStatusInterface;
-    return this.inventoryProductService.changeStatus(id, statusProduct);
+    const { id, changeStatusDto } = changeStatusInterface;
+    return this.inventoryProductService.changeStatus(id, changeStatusDto);
   }
 }

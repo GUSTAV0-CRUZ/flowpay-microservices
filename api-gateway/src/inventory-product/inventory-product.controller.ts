@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateProductDto } from './dtos/create-product.dto';
-import { StatusProductEnum } from './enums/status-product.enum';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
+import { ChangeStatusDto } from './dtos/change-status.dto';
 
 @Controller('inventory-product')
 export class InventoryProductController {
@@ -57,11 +57,11 @@ export class InventoryProductController {
   @Patch(':id')
   changeStatus(
     @Param('id') id: string,
-    @Body() statusProductEnum: StatusProductEnum,
+    @Body() changeStatusDto: ChangeStatusDto,
   ) {
     return this.serviceInventoryProduct.emit('changeStatus-inventory', {
       id,
-      statusProductEnum,
+      changeStatusDto,
     });
   }
   //////////////////////////////////////////////////////////////////////

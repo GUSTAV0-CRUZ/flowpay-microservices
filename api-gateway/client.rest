@@ -2,5 +2,38 @@
 
 ### inventory Product
 
+###
 # @name inventoryProductGetAll
 GET {{baseUrl}}/inventory-product
+
+###
+# @name inventoryProductGetOne
+GET {{baseUrl}}/inventory-product/id122344
+
+###
+# @name inventoryProductGetAllPerStatus
+GET {{baseUrl}}/inventory-product/id122344/perStatus
+
+###
+# @name inventoryProductPost
+POST {{baseUrl}}/inventory-product
+Content-Type: application/json
+
+{
+  "name": "tv",
+  "price": 2000,
+  "code": "codeOfProduct12345"
+}
+
+###
+# @name inventoryProductDelete
+DELETE  {{baseUrl}}/inventory-product/id122344
+
+###
+# @name inventoryProductPatch
+PATCH  {{baseUrl}}/inventory-product/id122344
+Content-Type: application/json
+
+{
+  "status": "RESERVED"
+}

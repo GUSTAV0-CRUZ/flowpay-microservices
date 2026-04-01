@@ -1,10 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { PaymentDto } from './dtos/payment.dto';
 
 @Injectable()
 export class PaymentService {
-  async payment(paymentDto: PaymentDto) {}
+  private readonly logger = new Logger(PaymentService.name);
+
+  async payment(paymentDto: PaymentDto) {
+    this.logger.log(
+      `Method: ${this.payment.name}, args: ${JSON.stringify(paymentDto)}`,
+    );
+  }
 
   async refund(idProduct: string) {}
 

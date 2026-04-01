@@ -31,7 +31,7 @@ export class InventoryProductController {
     return this.serviceInventoryProduct.send('findOne-inventory', id);
   }
 
-  // remove methods after tests //////////////////////////////////////////
+  // remove methods after tests and development //////////////////////////////////////////
   // remove-me
   @Get()
   findAll() {

@@ -2,7 +2,7 @@ import { StatusPaymentEnum } from '../enums/status-payment.enum';
 
 export class HistoryPayment {
   id?: string;
-  paymentIntentId: string;
+  idPaymentIntent: string;
   idProduct: string;
   amount: number;
   currency: string;

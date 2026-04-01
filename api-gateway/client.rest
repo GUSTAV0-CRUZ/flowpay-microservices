@@ -21,13 +21,13 @@ Content-Type: application/json
 
 {
   "name": "tv",
-  "price": 2000,
-  "code": "codeOfProduct12345"
+  "price": 2600,
+  "code": "codeOfProduct7"
 }
 
 ###
 # @name inventoryProductDelete
-DELETE  {{baseUrl}}/inventory-product/69cbe2736f4f01e78e83c7f8
+DELETE  {{baseUrl}}/inventory-product/69cc526c0002a01d7366d471
 
 ###
 # @name inventoryProductPatch

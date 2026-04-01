@@ -8,7 +8,7 @@ export type HistoryPaymentSchemaDocument = Document & HistoryPaymentSchemaDb;
 @Schema({ timestamps: true })
 export class HistoryPaymentSchemaDb implements HistoryPayment {
   @Prop({ type: String, isRequired: true, unique: true })
-  paymentIntentId: string;
+  idPaymentIntent: string;
 
   @Prop({ type: String, isRequired: true })
   idProduct: string;

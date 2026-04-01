@@ -1,10 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { PaymentDto } from './dtos/payment.dto';
+import { HistoryPaymentRepository } from './repository/history-payment.repository';
 
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
+
+  constructor(
+    private readonly historyPaymentRepository: HistoryPaymentRepository,
+  ) {}
 
   async payment(paymentDto: PaymentDto) {
     this.logger.log(
@@ -21,7 +26,7 @@ export class PaymentService {
     currency: string,
   ) {}
 
-  async updateHistory(paymentIntentId: string, statusPayment: StatusPaymentEnum) {}
+  async updateStatusHistoryPayment(paymentIntentId: string, statusPayment: StatusPaymentEnum) {}
 
   async findOneHistory(paymentIntentId: string) {}
 

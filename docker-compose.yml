@@ -24,6 +24,19 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
 
+  mongo-payment:
+    image: mongo:latest
+    container_name: mongo-payment
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_payment_data:/data/db
+    networks:
+      - flowpay-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
   # MICROSERVICES
   api-gateway:
     build:
@@ -58,6 +71,7 @@ services:
 volumes:
   rabbitmq_data:
   mongo_inventory_data:
+  mongo_payment_data:
 
 networks:
   flowpay-network:

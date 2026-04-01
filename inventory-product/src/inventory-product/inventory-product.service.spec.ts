@@ -24,6 +24,7 @@ describe('InventoryProductService', () => {
           useValue: {
             findAll: jest.fn(),
             findOneById: jest.fn(),
+            findPerStatus: jest.fn(),
           },
         },
       ],
@@ -109,6 +110,31 @@ describe('InventoryProductService', () => {
         .mockRejectedValue(new Error());
 
       await expect(inventoryProductService.findOne('id123')).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
+
+  describe('findPerStatus', () => {
+    it('shold return array of product', async () => {
+      const product = createProduct();
+
+      jest
+        .spyOn(productRepository, 'findPerStatus')
+        .mockResolvedValue([product] as any);
+
+      const result = await inventoryProductService.findPerStatus();
+
+      expect(productRepository.findPerStatus).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([product]);
+    });
+
+    it('shold return generic error', async () => {
+      jest
+        .spyOn(productRepository, 'findPerStatus')
+        .mockRejectedValue(new Error());
+
+      await expect(inventoryProductService.findPerStatus()).rejects.toThrow(
         RpcException,
       );
     });

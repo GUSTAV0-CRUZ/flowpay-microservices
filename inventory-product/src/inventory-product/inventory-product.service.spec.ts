@@ -27,6 +27,7 @@ describe('InventoryProductService', () => {
             findPerStatus: jest.fn(),
             createProduct: jest.fn(),
             deleteProduct: jest.fn(),
+            changeStatus: jest.fn(),
           },
         },
       ],
@@ -232,6 +233,65 @@ describe('InventoryProductService', () => {
 
       await expect(
         inventoryProductService.deleteProduct('id123'),
+      ).rejects.toThrow(RpcException);
+    });
+  });
+
+  describe('changeStatus', () => {
+    it('shold return updated product', async () => {
+      const product = createProduct();
+      const id = 'id123';
+      const dtpForUpdated = { status: StatusProductEnum.RESERVED };
+
+      jest
+        .spyOn(productRepository, 'changeStatus')
+        .mockResolvedValue({ ...product, ...dtpForUpdated } as any);
+
+      const result = await inventoryProductService.changeStatus(
+        id,
+        dtpForUpdated as any,
+      );
+
+      expect(productRepository.changeStatus).toHaveBeenCalledTimes(1);
+      expect(productRepository.changeStatus).toHaveBeenCalledWith(
+        id,
+        dtpForUpdated,
+      );
+      expect(result).toEqual({ ...product, ...dtpForUpdated });
+    });
+
+    it('shold return error "product not found"', async () => {
+      jest
+        .spyOn(productRepository, 'changeStatus')
+        .mockResolvedValue(undefined as any);
+
+      await expect(
+        inventoryProductService.changeStatus('id123', {} as any),
+      ).rejects.toThrow('product not found');
+    });
+
+    it('shold return error "Type of id invalid"', async () => {
+      const error = new Error();
+      error['path'] = '_id';
+
+      jest
+        .spyOn(productRepository, 'changeStatus')
+        .mockImplementationOnce(() => {
+          throw error;
+        });
+
+      await expect(
+        inventoryProductService.changeStatus('id123', {} as any),
+      ).rejects.toThrow('Type of id invalid');
+    });
+
+    it('shold return generic error', async () => {
+      jest
+        .spyOn(productRepository, 'changeStatus')
+        .mockRejectedValue(new Error());
+
+      await expect(
+        inventoryProductService.changeStatus('id123', {} as any),
       ).rejects.toThrow(RpcException);
     });
   });

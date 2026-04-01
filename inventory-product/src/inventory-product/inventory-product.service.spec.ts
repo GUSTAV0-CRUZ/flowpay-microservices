@@ -25,6 +25,7 @@ describe('InventoryProductService', () => {
             findAll: jest.fn(),
             findOneById: jest.fn(),
             findPerStatus: jest.fn(),
+            createProduct: jest.fn(),
           },
         },
       ],
@@ -137,6 +138,49 @@ describe('InventoryProductService', () => {
       await expect(inventoryProductService.findPerStatus()).rejects.toThrow(
         RpcException,
       );
+    });
+  });
+  /////////////////////////////////////
+  describe('createProduct', () => {
+    it('shold return one product', async () => {
+      const product = createProduct();
+      const dto = { name: 'any', price: 77, code: 'anyCode123' };
+
+      jest.spyOn(productRepository, 'createProduct').mockResolvedValue({
+        ...product,
+        ...dto,
+      } as any);
+
+      const result = await inventoryProductService.createProduct(dto);
+
+      expect(productRepository.createProduct).toHaveBeenCalledTimes(1);
+      expect(productRepository.createProduct).toHaveBeenCalledWith(dto);
+      expect(result).toEqual({ ...product, ...dto });
+    });
+
+    it('shold return error: key "code" is duplicate', async () => {
+      const error = new Error();
+      error['code'] = 11000;
+
+      jest
+        .spyOn(productRepository, 'createProduct')
+        .mockImplementationOnce(() => {
+          throw error;
+        });
+
+      await expect(
+        inventoryProductService.createProduct({} as any),
+      ).rejects.toThrow('key "code" is duplicate');
+    });
+
+    it('shold return generic error', async () => {
+      jest
+        .spyOn(productRepository, 'createProduct')
+        .mockRejectedValue(new Error());
+
+      await expect(
+        inventoryProductService.createProduct({} as any),
+      ).rejects.toThrow(RpcException);
     });
   });
 });

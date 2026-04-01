@@ -26,6 +26,11 @@ export class PaymentService {
     //   paymentDto.amount,
     //   currency,
     // );
+
+    await this.updateStatusHistoryPayment(
+      idPaymentIntent,
+      StatusPaymentEnum.PAID,
+    );
   }
 
   async refund(idProduct: string) {}
@@ -70,7 +75,25 @@ export class PaymentService {
     }
   }
 
-  async updateStatusHistoryPayment(idPaymentIntent: string, statusPayment: StatusPaymentEnum) {}
+  async updateStatusHistoryPayment(
+    idPaymentIntent: string,
+    statusPayment: StatusPaymentEnum,
+  ) {
+    try {
+      const historyPayment = await this.historyPaymentRepository.updateStatus(
+        idPaymentIntent,
+        statusPayment,
+      );
+
+      if (!historyPayment) throw new RpcException('historyPayment not found');
+
+      return historyPayment;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
 
   async handleWebHook(req: Request) {}
 }

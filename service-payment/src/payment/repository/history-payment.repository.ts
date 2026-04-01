@@ -20,9 +20,12 @@ export class HistoryPaymentRepository {
     return this.HistoryPaymentModel.create(createHistoryPaymentDto);
   }
 
-  updateStatus(id: string, StatusHistoryPayment: StatusPaymentEnum) {
-    return this.HistoryPaymentModel.findByIdAndUpdate(
-      id,
+  updateStatus(
+    idPaymentIntent: string,
+    StatusHistoryPayment: StatusPaymentEnum,
+  ) {
+    return this.HistoryPaymentModel.findOneAndUpdate(
+      { idPaymentIntent },
       { status: StatusHistoryPayment },
       { returnDocument: 'after' },
     ).exec();

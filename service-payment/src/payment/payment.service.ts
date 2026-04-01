@@ -53,9 +53,24 @@ export class PaymentService {
     }
   }
 
-  async updateStatusHistoryPayment(idPaymentIntent: string, statusPayment: StatusPaymentEnum) {}
+  async findOneHistory(idPaymentIntent: string) {
+    try {
+      const historyPayment =
+        await this.historyPaymentRepository.findOneByidPaymentIntent(
+          idPaymentIntent,
+        );
 
-  async findOneHistory(idPaymentIntent: string) {}
+      if (!historyPayment) throw new RpcException('historyPayment not found');
+
+      return historyPayment;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
+
+  async updateStatusHistoryPayment(idPaymentIntent: string, statusPayment: StatusPaymentEnum) {}
 
   async handleWebHook(req: Request) {}
 }

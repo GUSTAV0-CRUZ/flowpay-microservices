@@ -26,6 +26,7 @@ describe('InventoryProductService', () => {
             findOneById: jest.fn(),
             findPerStatus: jest.fn(),
             createProduct: jest.fn(),
+            deleteProduct: jest.fn(),
           },
         },
       ],
@@ -140,9 +141,8 @@ describe('InventoryProductService', () => {
       );
     });
   });
-  /////////////////////////////////////
   describe('createProduct', () => {
-    it('shold return one product', async () => {
+    it('shold return new product', async () => {
       const product = createProduct();
       const dto = { name: 'any', price: 77, code: 'anyCode123' };
 
@@ -180,6 +180,58 @@ describe('InventoryProductService', () => {
 
       await expect(
         inventoryProductService.createProduct({} as any),
+      ).rejects.toThrow(RpcException);
+    });
+  });
+
+  describe('deleteProduct', () => {
+    it('shold return deleted product', async () => {
+      const product = createProduct();
+      const id = 'id123';
+
+      jest
+        .spyOn(productRepository, 'deleteProduct')
+        .mockResolvedValue(product as any);
+
+      const result = await inventoryProductService.deleteProduct(id);
+
+      expect(productRepository.deleteProduct).toHaveBeenCalledTimes(1);
+      expect(productRepository.deleteProduct).toHaveBeenCalledWith(id);
+      expect(result).toEqual(product);
+    });
+
+    it('shold return error "product not found"', async () => {
+      jest
+        .spyOn(productRepository, 'deleteProduct')
+        .mockResolvedValue(undefined as any);
+
+      await expect(
+        inventoryProductService.deleteProduct('id123'),
+      ).rejects.toThrow('product not found');
+    });
+
+    it('shold return error "Type of id invalid"', async () => {
+      const error = new Error();
+      error['path'] = '_id';
+
+      jest
+        .spyOn(productRepository, 'deleteProduct')
+        .mockImplementationOnce(() => {
+          throw error;
+        });
+
+      await expect(
+        inventoryProductService.deleteProduct('id123'),
+      ).rejects.toThrow('Type of id invalid');
+    });
+
+    it('shold return generic error', async () => {
+      jest
+        .spyOn(productRepository, 'deleteProduct')
+        .mockRejectedValue(new Error());
+
+      await expect(
+        inventoryProductService.deleteProduct('id123'),
       ).rejects.toThrow(RpcException);
     });
   });

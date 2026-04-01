@@ -3,6 +3,7 @@ import { CreateProductDto } from './dtos/create-product.dto';
 import { ChangeStatusDto } from './dtos/change-status.dto';
 import { ProductRepository } from './repository/product.repository';
 import { RpcException } from '@nestjs/microservices';
+import { loggerError } from '../utils/logger-error';
 
 @Injectable()
 export class InventoryProductService {
@@ -15,7 +16,7 @@ export class InventoryProductService {
     try {
       return await this.productRepository.findAll();
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.findAll.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -30,7 +31,7 @@ export class InventoryProductService {
 
       return product;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.findOne.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.path === '_id') throw new RpcException('Type of id invalid');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
@@ -43,7 +44,8 @@ export class InventoryProductService {
     try {
       return await this.productRepository.findPerStatus();
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.findPerStatus.name);
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -56,7 +58,8 @@ export class InventoryProductService {
     try {
       return await this.productRepository.createProduct(createProductDto);
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.createProduct.name);
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.code === 11000)
         throw new RpcException('key "code" is duplicate');
@@ -74,7 +77,8 @@ export class InventoryProductService {
 
       return product;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.deleteProduct.name);
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.path === '_id') throw new RpcException('Type of id invalid');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
@@ -96,7 +100,8 @@ export class InventoryProductService {
 
       return product;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.changeStatus.name);
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.path === '_id') throw new RpcException('Type of id invalid');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access

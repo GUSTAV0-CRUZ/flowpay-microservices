@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { PaymentDto } from './dtos/payment.dto';
 import { HistoryPaymentRepository } from './repository/history-payment.repository';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class PaymentService {
@@ -15,20 +16,46 @@ export class PaymentService {
     this.logger.log(
       `Method: ${this.payment.name}, args: ${JSON.stringify(paymentDto)}`,
     );
+    const currency = 'brl';
+
+    const idPaymentIntent = 'idPaymentIntent123';
+
+    // await this.addHistory(
+    //   idPaymentIntent,
+    //   paymentDto.idProduct,
+    //   paymentDto.amount,
+    //   currency,
+    // );
   }
 
   async refund(idProduct: string) {}
 
   async addHistory(
-    paymentIntentId: string,
+    idPaymentIntent: string,
     idProduct: string,
     amount: number,
     currency: string,
-  ) {}
+  ) {
+    try {
+      return await this.historyPaymentRepository.create({
+        idPaymentIntent,
+        idProduct,
+        amount,
+        currency,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error.code === 11000)
+        throw new RpcException('key: "idPaymentIntent" is duplicate');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
 
-  async updateStatusHistoryPayment(paymentIntentId: string, statusPayment: StatusPaymentEnum) {}
+  async updateStatusHistoryPayment(idPaymentIntent: string, statusPayment: StatusPaymentEnum) {}
 
-  async findOneHistory(paymentIntentId: string) {}
+  async findOneHistory(idPaymentIntent: string) {}
 
   async handleWebHook(req: Request) {}
 }

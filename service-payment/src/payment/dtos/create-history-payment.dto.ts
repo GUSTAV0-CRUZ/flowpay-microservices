@@ -1,5 +1,5 @@
 export class CreateHistoryPaymentDto {
-  paymentIntentId: string;
+  idPaymentIntent: string;
   idProduct: string;
   amount: number;
   currency: string;

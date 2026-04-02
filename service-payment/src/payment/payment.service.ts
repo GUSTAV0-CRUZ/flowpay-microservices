@@ -4,6 +4,7 @@ import { PaymentDto } from './dtos/payment.dto';
 import { HistoryPaymentRepository } from './repository/history-payment.repository';
 import { RpcException } from '@nestjs/microservices';
 import { StripeService } from '../stripe/stripe.service';
+import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
 
 @Injectable()
 export class PaymentService {
@@ -27,6 +28,7 @@ export class PaymentService {
         await this.stripeService.createPaymentIntent(amountInCents, currency);
 
       await this.addHistory(idPaymentIntent, idProduct, amount, currency);
+      console.log(clientSecret);
       return { idPaymentIntent, clientSecret };
     } catch (error) {
       this.logger.error(error);
@@ -37,7 +39,7 @@ export class PaymentService {
 
   async refund(idProduct: string) {}
 
-  async addHistory(
+  private async addHistory(
     idPaymentIntent: string,
     idProduct: string,
     amount: number,
@@ -60,7 +62,7 @@ export class PaymentService {
     }
   }
 
-  async findOneHistory(idPaymentIntent: string) {
+  private async findByidPaymentIntent(idPaymentIntent: string) {
     try {
       const historyPayment =
         await this.historyPaymentRepository.findOneByidPaymentIntent(
@@ -77,7 +79,7 @@ export class PaymentService {
     }
   }
 
-  async updateStatusHistoryPayment(
+  private async updateStatusHistoryPayment(
     idPaymentIntent: string,
     statusPayment: StatusPaymentEnum,
   ) {
@@ -97,5 +99,35 @@ export class PaymentService {
     }
   }
 
-  async handleWebHook(req: Request) {}
+  async paymentSucceeded(paymentWebhookDto: PaymentWebhookDto) {
+    this.logger.log(this.paymentSucceeded.name, paymentWebhookDto);
+
+    try {
+      const historyPayment = await this.updateStatusHistoryPayment(
+        paymentWebhookDto.paymentIntentId,
+        StatusPaymentEnum.PAID,
+      );
+      return historyPayment;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
+
+  async paymentFailed(paymentWebhookDto: PaymentWebhookDto) {
+    this.logger.log(this.paymentFailed.name, paymentWebhookDto);
+    try {
+      const historyPayment = await this.updateStatusHistoryPayment(
+        paymentWebhookDto.paymentIntentId,
+        StatusPaymentEnum.FAILED,
+      );
+
+      return historyPayment;
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
 }

@@ -3,6 +3,7 @@ import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { PaymentDto } from './dtos/payment.dto';
 import { HistoryPaymentRepository } from './repository/history-payment.repository';
 import { RpcException } from '@nestjs/microservices';
+import { StripeService } from '../stripe/stripe.service';
 
 @Injectable()
 export class PaymentService {
@@ -10,22 +11,28 @@ export class PaymentService {
 
   constructor(
     private readonly historyPaymentRepository: HistoryPaymentRepository,
+    private readonly stripeService: StripeService,
   ) {}
 
   async payment(paymentDto: PaymentDto) {
     this.logger.log(
       `Method: ${this.payment.name}, args: ${JSON.stringify(paymentDto)}`,
     );
+    const { amount, idProduct } = paymentDto;
     const currency = 'brl';
+    const amountInCents = amount * 100;
 
-    const idPaymentIntent = 'idPaymentIntent123';
+    try {
+      const { id: idPaymentIntent, client_secret: clientSecret } =
+        await this.stripeService.createPaymentIntent(amountInCents, currency);
 
-    // await this.addHistory(
-    //   idPaymentIntent,
-    //   paymentDto.idProduct,
-    //   paymentDto.amount,
-    //   currency,
-    // );
+      await this.addHistory(idPaymentIntent, idProduct, amount, currency);
+      return { idPaymentIntent, clientSecret };
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
   }
 
   async refund(idProduct: string) {}

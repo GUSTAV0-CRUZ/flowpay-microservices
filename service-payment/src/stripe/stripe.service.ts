@@ -26,7 +26,7 @@ export class StripeService {
   refundPayment(idPaymentIntent: string, amount?: number) {
     return this.stripe.refunds.create({
       payment_intent: idPaymentIntent,
-      amount: amount ? amount * 100 : undefined,
+      amount,
     });
   }
 }

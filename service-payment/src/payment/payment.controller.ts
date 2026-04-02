@@ -1,5 +1,5 @@
 import { Controller, Post, Req } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { PaymentService } from './payment.service';
 import { PaymentDto } from './dtos/payment.dto';
 
@@ -7,7 +7,7 @@ import { PaymentDto } from './dtos/payment.dto';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @EventPattern('payment')
+  @MessagePattern('payment')
   async payment(@Payload() paymentDto: PaymentDto) {
     await this.paymentService.payment(paymentDto);
   }

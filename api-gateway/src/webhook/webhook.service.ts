@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Request } from 'express';
-import { ClientProxyService } from 'src/client-proxy/client-proxy.service';
-import { StripeService } from 'src/stripe/stripe.service';
+import { ClientProxyService } from '../client-proxy/client-proxy.service';
+import { StripeService } from '../stripe/stripe.service';
 import Stripe from 'stripe';
 
 @Injectable()

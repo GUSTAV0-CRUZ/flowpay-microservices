@@ -26,11 +26,6 @@ export class PaymentService {
     //   paymentDto.amount,
     //   currency,
     // );
-
-    await this.updateStatusHistoryPayment(
-      idPaymentIntent,
-      StatusPaymentEnum.PAID,
-    );
   }
 
   async refund(idProduct: string) {}

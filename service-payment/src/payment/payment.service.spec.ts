@@ -175,4 +175,36 @@ describe('PaymentService', () => {
       );
     });
   });
+
+  describe('paymentFailed', () => {
+    it('should return historyPayment', async () => {
+      const historyPayment = createHistoryPayment();
+
+      jest
+        .spyOn(historyPaymentRepository, 'updateStatus')
+        .mockResolvedValue(historyPayment as any);
+
+      const result = await paymentService.paymentFailed({
+        paymentIntentId: historyPayment.idPaymentIntent,
+      });
+
+      expect(historyPaymentRepository.updateStatus).toHaveBeenCalledWith(
+        historyPayment.idPaymentIntent,
+        StatusPaymentEnum.FAILED,
+      );
+      expect(result).toEqual(historyPayment);
+    });
+
+    it('should return generic error: RpcException', async () => {
+      jest
+        .spyOn(historyPaymentRepository, 'updateStatus')
+        .mockImplementationOnce(() => {
+          throw new Error();
+        });
+
+      await expect(paymentService.paymentFailed({} as any)).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
 });

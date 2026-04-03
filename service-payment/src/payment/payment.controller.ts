@@ -10,6 +10,7 @@ import { PaymentService } from './payment.service';
 import { PaymentDto } from './dtos/payment.dto';
 import { Channel, Message } from 'amqplib';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
+import { catchWithMessageResilience } from 'src/utils/catch-with-message-resilience';
 
 @Controller('payment')
 export class PaymentController {
@@ -20,8 +21,13 @@ export class PaymentController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.paymentService.payment(paymentDto);
-    channel.ack(originalMsg);
+    try {
+      const payment = await this.paymentService.payment(paymentDto);
+      channel.ack(originalMsg);
+      return payment;
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('refund')
@@ -29,8 +35,12 @@ export class PaymentController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.paymentService.refund(refund);
-    channel.ack(originalMsg);
+    try {
+      await this.paymentService.refund(refund);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('payment-succeeded')
@@ -41,8 +51,12 @@ export class PaymentController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.paymentService.paymentSucceeded(paymentWebhookDto);
-    channel.ack(originalMsg);
+    try {
+      await this.paymentService.paymentSucceeded(paymentWebhookDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('payment-failed')
@@ -53,7 +67,11 @@ export class PaymentController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.paymentService.paymentFailed(paymentWebhookDto);
-    channel.ack(originalMsg);
+    try {
+      await this.paymentService.paymentFailed(paymentWebhookDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 }

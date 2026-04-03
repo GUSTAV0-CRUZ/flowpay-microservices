@@ -5,6 +5,7 @@ import { HistoryPaymentRepository } from './repository/history-payment.repositor
 import { RpcException } from '@nestjs/microservices';
 import { StripeService } from '../stripe/stripe.service';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
+import { loggerError } from '../utils/logger-error';
 
 @Injectable()
 export class PaymentService {
@@ -28,10 +29,9 @@ export class PaymentService {
         await this.stripeService.createPaymentIntent(amountInCents, currency);
 
       await this.addHistory(idPaymentIntent, idProduct, amount, currency);
-      console.log(clientSecret);
       return { idPaymentIntent, clientSecret };
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.payment.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -49,7 +49,7 @@ export class PaymentService {
         StatusPaymentEnum.REFUNDED,
       );
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.refund.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -69,7 +69,7 @@ export class PaymentService {
         currency,
       });
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.addHistory.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000)
         throw new RpcException('key: "idPaymentIntent" is duplicate');
@@ -89,7 +89,7 @@ export class PaymentService {
 
       return historyPayment;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.findByIdProductStatusPaid.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -109,7 +109,7 @@ export class PaymentService {
 
       return historyPayment;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.updateStatusHistoryPayment.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -125,7 +125,7 @@ export class PaymentService {
       );
       return historyPayment;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.paymentSucceeded.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }
@@ -141,7 +141,7 @@ export class PaymentService {
 
       return historyPayment;
     } catch (error) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.paymentFailed.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }

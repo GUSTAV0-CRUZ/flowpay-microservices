@@ -12,8 +12,15 @@ export class HistoryPaymentRepository {
     private HistoryPaymentModel: Model<HistoryPaymentSchemaDocument>,
   ) {}
 
-  findOneByidPaymentIntent(idPaymentIntent: string) {
+  findOneByIdPaymentIntent(idPaymentIntent: string) {
     return this.HistoryPaymentModel.findOne({ idPaymentIntent });
+  }
+
+  findByIdProductStatusPaid(idProduct: string) {
+    return this.HistoryPaymentModel.findOne({
+      idProduct,
+      status: StatusPaymentEnum.PAID,
+    });
   }
 
   create(createHistoryPaymentDto: CreateHistoryPaymentDto) {

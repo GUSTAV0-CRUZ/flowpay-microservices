@@ -37,7 +37,23 @@ export class PaymentService {
     }
   }
 
-  async refund(idProduct: string) {}
+  async refund(idProduct: string) {
+    this.logger.log(this.refund.name, idProduct);
+    try {
+      const historyPayment = await this.findByIdProductStatusPaid(idProduct);
+      const { idPaymentIntent } = historyPayment;
+
+      await this.stripeService.refundPayment(idPaymentIntent);
+      await this.updateStatusHistoryPayment(
+        idPaymentIntent,
+        StatusPaymentEnum.REFUNDED,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
 
   private async addHistory(
     idPaymentIntent: string,
@@ -62,11 +78,11 @@ export class PaymentService {
     }
   }
 
-  private async findByidPaymentIntent(idPaymentIntent: string) {
+  private async findByIdProductStatusPaid(IdProduct: string) {
     try {
       const historyPayment =
-        await this.historyPaymentRepository.findOneByidPaymentIntent(
-          idPaymentIntent,
+        await this.historyPaymentRepository.findByIdProductStatusPaid(
+          IdProduct,
         );
 
       if (!historyPayment) throw new RpcException('historyPayment not found');

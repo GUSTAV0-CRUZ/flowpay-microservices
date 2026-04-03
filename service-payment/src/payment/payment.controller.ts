@@ -10,7 +10,7 @@ import { PaymentService } from './payment.service';
 import { PaymentDto } from './dtos/payment.dto';
 import { Channel, Message } from 'amqplib';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
-import { catchWithMessageResilience } from 'src/utils/catch-with-message-resilience';
+import { catchWithMessageResilience } from '../utils/catch-with-message-resilience';
 
 @Controller('payment')
 export class PaymentController {

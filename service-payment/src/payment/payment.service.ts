@@ -30,7 +30,7 @@ export class PaymentService {
 
       await this.addHistory(idPaymentIntent, idProduct, amount, currency);
       return { idPaymentIntent, clientSecret };
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.payment.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
@@ -48,7 +48,9 @@ export class PaymentService {
         idPaymentIntent,
         StatusPaymentEnum.REFUNDED,
       );
-    } catch (error) {
+
+      return idPaymentIntent;
+    } catch (error: any) {
       loggerError(error, this.logger, this.refund.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
@@ -68,7 +70,7 @@ export class PaymentService {
         amount,
         currency,
       });
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.addHistory.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000)
@@ -88,7 +90,7 @@ export class PaymentService {
       if (!historyPayment) throw new RpcException('historyPayment not found');
 
       return historyPayment;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.findByIdProductStatusPaid.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
@@ -108,7 +110,7 @@ export class PaymentService {
       if (!historyPayment) throw new RpcException('historyPayment not found');
 
       return historyPayment;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.updateStatusHistoryPayment.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
@@ -124,7 +126,7 @@ export class PaymentService {
         StatusPaymentEnum.PAID,
       );
       return historyPayment;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.paymentSucceeded.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
@@ -140,7 +142,7 @@ export class PaymentService {
       );
 
       return historyPayment;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.paymentFailed.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);

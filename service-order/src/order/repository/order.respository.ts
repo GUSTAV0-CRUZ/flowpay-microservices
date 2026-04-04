@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { orderSchemaDocument } from '../schema/order.sechema';
 import { InjectModel } from '@nestjs/mongoose';
 import { AddProductDto } from '../dtos/add-product.dto';
-import { UpdateProductDto } from '../dtos/update-product.dto';
+import { StatusProductEnum } from '../enums/status-product.enum';
 
 @Injectable()
 export class OrderRepository {
@@ -24,11 +24,13 @@ export class OrderRepository {
     return this.orderModel.create(addProductDto);
   }
 
-  changeStatus(idProduct: string, updateProductDto: UpdateProductDto) {
+  changeStatus(idProduct: string, statusProductEnum: StatusProductEnum) {
     return this.orderModel
-      .findOneAndUpdate({ idProduct }, updateProductDto, {
-        returnDocument: 'after',
-      })
+      .findOneAndUpdate(
+        { idProduct },
+        { status: statusProductEnum },
+        { returnDocument: 'after' },
+      )
       .exec();
   }
 }

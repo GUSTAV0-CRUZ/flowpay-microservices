@@ -38,7 +38,11 @@ export class ProductRepository {
 
   changeStatus(id: string, changeStatusDto: ChangeStatusDto) {
     return this.productSchema
-      .findByIdAndUpdate(id, changeStatusDto, { returnDocument: 'after' })
+      .findByIdAndUpdate(
+        id,
+        { status: changeStatusDto },
+        { returnDocument: 'after' },
+      )
       .exec();
   }
 }

@@ -21,7 +21,20 @@ export class OrderService {
 
   async confirmOrder() {}
 
-  async findOne() {}
+  private async findOneByIdProduct(idProduct: string) {
+    this.logger.log(this.findOneByIdProduct.name, idProduct);
+    try {
+      const product = await this.orderRepository.findOneByIdProduct(idProduct);
+
+      if (!product) throw new RpcException('Product not found');
+
+      return product;
+    } catch (error: any) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+      throw new RpcException(error.message);
+    }
+  }
 
   async addProduct(addProductDto: AddProductDto) {
     this.logger.log(this.addProduct.name, addProductDto);
@@ -51,7 +64,10 @@ export class OrderService {
     }
   }
 
-  async changeStatus(idProduct: string, statusProductEnum: StatusProductEnum) {
+  private async changeStatus(
+    idProduct: string,
+    statusProductEnum: StatusProductEnum,
+  ) {
     this.logger.log(this.changeStatus.name, idProduct, statusProductEnum);
     try {
       const product = await this.orderRepository.changeStatus(

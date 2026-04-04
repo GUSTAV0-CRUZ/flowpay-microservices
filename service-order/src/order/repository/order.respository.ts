@@ -17,7 +17,7 @@ export class OrderRepository {
   }
 
   removeProduct(idProduct: string) {
-    return this.orderModel.deleteOne({ idProduct }).exec();
+    return this.orderModel.findOneAndDelete({ idProduct }).exec();
   }
 
   addProduct(addProductDto: AddProductDto) {

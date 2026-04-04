@@ -10,8 +10,8 @@ import { BuyProductDto } from './dtos/buy-product.dto';
 import { ReversalProductDto } from './dtos/reversal-product.dto';
 import { AddProductDto } from './dtos/add-product.dto';
 import { OrderService } from './order.service';
-import { RemoveProductDto } from './dtos/remove-product.dto';
 import { Message, Channel } from 'amqplib';
+import { RemoveProductDto } from './dtos/remove-product.dto';
 
 @Controller('order')
 export class OrderController {

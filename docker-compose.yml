@@ -67,6 +67,20 @@ services:
     networks:
       - flowpay-network
 
+  service-payment:
+    build:
+      context: ./service-payment
+      dockerfile: Dockerfile
+    container_name: service-payment
+    restart: always
+    env_file:
+      - ./service-payment/.env
+    depends_on:
+      - rabbitmq
+      - mongo-payment
+    networks:
+      - flowpay-network
+
 # PERSISTENCE DATA
 volumes:
   rabbitmq_data:

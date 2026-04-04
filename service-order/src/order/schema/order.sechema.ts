@@ -12,6 +12,9 @@ export class OrderSchemaDb implements Order {
 
   @Prop({ type: String, required: true, enum: StatusProductEnum })
   status: StatusProductEnum;
+
+  @Prop({ type: Number, required: true })
+  price: number;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(OrderSchemaDb);

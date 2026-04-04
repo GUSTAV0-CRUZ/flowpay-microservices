@@ -4,6 +4,7 @@ export class Order {
   id?: string;
   idProduct: string;
   status: StatusProductEnum;
+  price: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

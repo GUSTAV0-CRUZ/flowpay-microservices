@@ -3,17 +3,62 @@ import { BuyProductDto } from './dtos/buy-product.dto';
 import { ReversalProductDto } from './dtos/reversal-product.dto';
 import { AddProductDto } from './dtos/add-product.dto';
 import { OrderRepository } from './repository/order.respository';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { RemoveProductDto } from './dtos/remove-product.dto';
 import { StatusProductEnum } from './enums/status-product.enum';
+import { ClientProxyService } from '../client-proxy/client-proxy.service';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
+  private servicePaymentClientProxy: ClientProxy;
+  private inventoryProductClientProxy: ClientProxy;
 
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly orderRepository: OrderRepository,
+    clientProxyService: ClientProxyService,
+  ) {
+    this.servicePaymentClientProxy =
+      clientProxyService.getClientProxyServicePayment();
+    this.inventoryProductClientProxy =
+      clientProxyService.getClientProxyInventoryProduct();
+  }
 
-  async buyProduct(buyProductDto: BuyProductDto) {}
+  async buyProduct(buyProductDto: BuyProductDto) {
+    this.logger.log(this.buyProduct.name, buyProductDto);
+    try {
+      const { idProduct, price, status } = await this.findOneByIdProduct(
+        buyProductDto.idProduct,
+      );
+
+      if (status !== StatusProductEnum.AVAILABLE)
+        throw new RpcException('Product not AVAILABLE');
+
+      const paymentIntent = await lastValueFrom<{
+        idPaymentIntent: string;
+        clientSecret: string;
+      }>(
+        this.servicePaymentClientProxy.send('payment', {
+          idProduct,
+          amount: price,
+        }),
+      );
+
+      await this.changeStatus(idProduct, StatusProductEnum.RESERVED);
+
+      this.inventoryProductClientProxy.emit('changeStatus-inventory', {
+        id: idProduct,
+        changeStatusDto: StatusProductEnum.RESERVED,
+      });
+
+      return paymentIntent;
+    } catch (error: any) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+      throw new RpcException(error.message);
+    }
+  }
 
   async reversalProduct(reversalProductDto: ReversalProductDto) {}
 

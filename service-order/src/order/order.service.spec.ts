@@ -199,7 +199,7 @@ describe('OrderService', () => {
         idProduct,
         StatusProductEnum.AVAILABLE,
       );
-      expect(inventoryProductClientProxy.emit).toHaveBeenCalledWith(
+      expect(inventoryProductClientProxy.emit).toHaveBeenLastCalledWith(
         'changeStatus-inventory',
         {
           id: idProduct,
@@ -228,6 +228,58 @@ describe('OrderService', () => {
         });
 
       await expect(orderService.rollback({} as any)).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
+
+  describe('confirmOrder', () => {
+    it('should return product', async () => {
+      const idProduct = 'idProduct123';
+      const status = StatusProductEnum.SOLDOUT;
+
+      jest.spyOn(orderRepository, 'changeStatus').mockResolvedValue({
+        idProduct,
+        status,
+        price: 1200,
+      } as any);
+      jest.spyOn(servicePaymentClientProxy, 'emit');
+
+      const result = await orderService.confirmOrder({ idProduct });
+
+      expect(orderRepository.changeStatus).toHaveBeenCalledWith(
+        idProduct,
+        StatusProductEnum.SOLDOUT,
+      );
+      expect(inventoryProductClientProxy.emit).toHaveBeenLastCalledWith(
+        'changeStatus-inventory',
+        {
+          id: idProduct,
+          changeStatusDto: StatusProductEnum.SOLDOUT,
+        },
+      );
+
+      expect(result).toEqual({
+        idProduct,
+        status,
+        price: 1200,
+      });
+    });
+
+    it('should return error: Product not found', async () => {
+      await expect(orderService.confirmOrder({} as any)).rejects.toThrow(
+        'Product not found',
+      );
+    });
+
+    it('should return generic error: RpcException', async () => {
+      jest
+        .spyOn(orderRepository, 'findOneByIdProduct')
+        .mockRejectedValue(() => {
+          throw new Error();
+        });
+
+      await expect(orderService.confirmOrder({} as any)).rejects.toThrow(
         RpcException,
       );
     });

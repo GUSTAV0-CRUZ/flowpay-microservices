@@ -85,18 +85,18 @@ export class OrderService {
     }
   }
 
-  async rollback(confirmOrderDto: RollbackOrderDto) {
+  async rollback(rollbackOrderDto: RollbackOrderDto) {
     this.logger.log(this.confirmOrder.name, {
-      idProduct: confirmOrderDto.idProduct,
+      idProduct: rollbackOrderDto.idProduct,
     });
     try {
       const product = await this.changeStatus(
-        confirmOrderDto.idProduct,
+        rollbackOrderDto.idProduct,
         StatusProductEnum.AVAILABLE,
       );
 
       this.inventoryProductClientProxy.emit('changeStatus-inventory', {
-        id: confirmOrderDto.idProduct,
+        id: rollbackOrderDto.idProduct,
         changeStatusDto: StatusProductEnum.AVAILABLE,
       });
 

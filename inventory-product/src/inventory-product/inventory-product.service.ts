@@ -92,6 +92,10 @@ export class InventoryProductService {
 
       if (!product) throw new RpcException('product not found');
 
+      this.serviceOrderClientProxy.emit('removeProduct-order', {
+        idProduct: product._id,
+      });
+
       return product;
     } catch (error: any) {
       loggerError(error, this.logger, this.deleteProduct.name);

@@ -94,6 +94,20 @@ services:
     networks:
       - flowpay-network
 
+  service-order:
+    build:
+      context: ./service-order
+      dockerfile: Dockerfile
+    container_name: service-order
+    restart: always
+    env_file:
+      - ./service-order/.env
+    depends_on:
+      - rabbitmq
+      - mongo-order
+    networks:
+      - flowpay-network
+
 # PERSISTENCE DATA
 volumes:
   rabbitmq_data:

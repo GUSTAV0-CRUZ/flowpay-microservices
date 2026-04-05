@@ -23,7 +23,7 @@ export class InventoryProductService {
     this.logger.log(`method: ${this.findAll.name}`);
     try {
       return await this.productRepository.findAll();
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.findAll.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
@@ -38,7 +38,7 @@ export class InventoryProductService {
       if (!product) throw new RpcException('product not found');
 
       return product;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.findOne.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error?.path === '_id') throw new RpcException('Type of id invalid');
@@ -51,7 +51,7 @@ export class InventoryProductService {
     this.logger.log(`method: ${this.findPerStatus.name}`);
     try {
       return await this.productRepository.findPerStatus();
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.findPerStatus.name);
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
@@ -64,8 +64,17 @@ export class InventoryProductService {
       `method: ${this.createProduct.name}, payload: ${JSON.stringify(createProductDto)}`,
     );
     try {
-      return await this.productRepository.createProduct(createProductDto);
-    } catch (error) {
+      const product =
+        await this.productRepository.createProduct(createProductDto);
+
+      this.serviceOrderClientProxy.emit('addProduct-order', {
+        idProduct: product._id,
+        status: product.status,
+        price: product.price,
+      });
+
+      return product;
+    } catch (error: any) {
       loggerError(error, this.logger, this.createProduct.name);
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -84,7 +93,7 @@ export class InventoryProductService {
       if (!product) throw new RpcException('product not found');
 
       return product;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.deleteProduct.name);
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -107,7 +116,7 @@ export class InventoryProductService {
       if (!product) throw new RpcException('product not found');
 
       return product;
-    } catch (error) {
+    } catch (error: any) {
       loggerError(error, this.logger, this.changeStatus.name);
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

@@ -9,6 +9,7 @@ import { StatusProductEnum } from './enums/status-product.enum';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
+import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
 
 @Injectable()
 export class OrderService {
@@ -73,12 +74,7 @@ export class OrderService {
 
       this.servicePaymentClientProxy.emit('refund', idProduct);
 
-      await this.changeStatus(idProduct, StatusProductEnum.AVAILABLE);
-
-      this.inventoryProductClientProxy.emit('changeStatus-inventory', {
-        id: idProduct,
-        changeStatusDto: StatusProductEnum.AVAILABLE,
-      });
+      await this.rollback({ idProduct });
 
       return idProduct;
     } catch (error: any) {
@@ -88,7 +84,26 @@ export class OrderService {
     }
   }
 
-  async rollback() {}
+  async rollback(confirmOrderDto: RollbackOrderDto) {
+    this.logger.log(this.confirmOrder.name, confirmOrderDto.idProduct);
+    try {
+      const product = await this.changeStatus(
+        confirmOrderDto.idProduct,
+        StatusProductEnum.AVAILABLE,
+      );
+
+      this.inventoryProductClientProxy.emit('changeStatus-inventory', {
+        id: confirmOrderDto.idProduct,
+        changeStatusDto: StatusProductEnum.AVAILABLE,
+      });
+
+      return product;
+    } catch (error: any) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+      throw new RpcException(error.message);
+    }
+  }
 
   async confirmOrder(confirmOrderDto: ConfirmOrderDto) {
     this.logger.log(this.confirmOrder.name, confirmOrderDto.idProduct);

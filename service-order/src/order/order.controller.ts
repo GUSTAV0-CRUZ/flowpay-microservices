@@ -13,6 +13,7 @@ import { OrderService } from './order.service';
 import { Message, Channel } from 'amqplib';
 import { RemoveProductDto } from './dtos/remove-product.dto';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
+import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
 
 @Controller('order')
 export class OrderController {
@@ -76,6 +77,18 @@ export class OrderController {
     const originalMsg = ctx.getMessage() as Message;
 
     await this.orderService.confirmOrder(confirmOrderDto);
+    channel.ack(originalMsg);
+  }
+
+  @EventPattern('rollbackOrder-order')
+  async rollbackOrder(
+    @Payload() rollbackOrderDto: RollbackOrderDto,
+    @Ctx() ctx: RmqContext,
+  ) {
+    const channel = ctx.getChannelRef() as Channel;
+    const originalMsg = ctx.getMessage() as Message;
+
+    await this.orderService.rollback(rollbackOrderDto);
     channel.ack(originalMsg);
   }
 }

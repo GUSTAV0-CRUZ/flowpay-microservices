@@ -10,6 +10,7 @@ import { ClientProxyService } from '../client-proxy/client-proxy.service';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
+import { loggerError } from 'src/utils/logger-error';
 
 @Injectable()
 export class OrderService {
@@ -28,7 +29,7 @@ export class OrderService {
   }
 
   async buyProduct(buyProductDto: BuyProductDto) {
-    this.logger.log(this.buyProduct.name, buyProductDto);
+    this.logger.log(this.buyProduct.name, { buyProductDto });
     try {
       const { idProduct, price, status } = await this.findOneByIdProduct(
         buyProductDto.idProduct,
@@ -56,14 +57,14 @@ export class OrderService {
 
       return paymentIntent;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.buyProduct.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
   }
 
   async reversalProduct(reversalProductDto: ReversalProductDto) {
-    this.logger.log(this.reversalProduct.name, reversalProductDto);
+    this.logger.log(this.reversalProduct.name, { reversalProductDto });
     try {
       const { idProduct, status } = await this.findOneByIdProduct(
         reversalProductDto.idProduct,
@@ -78,14 +79,16 @@ export class OrderService {
 
       return idProduct;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.reversalProduct.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
   }
 
   async rollback(confirmOrderDto: RollbackOrderDto) {
-    this.logger.log(this.confirmOrder.name, confirmOrderDto.idProduct);
+    this.logger.log(this.confirmOrder.name, {
+      idProduct: confirmOrderDto.idProduct,
+    });
     try {
       const product = await this.changeStatus(
         confirmOrderDto.idProduct,
@@ -99,14 +102,16 @@ export class OrderService {
 
       return product;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.rollback.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
   }
 
   async confirmOrder(confirmOrderDto: ConfirmOrderDto) {
-    this.logger.log(this.confirmOrder.name, confirmOrderDto.idProduct);
+    this.logger.log(this.confirmOrder.name, {
+      idProduct: confirmOrderDto.idProduct,
+    });
     try {
       const product = await this.changeStatus(
         confirmOrderDto.idProduct,
@@ -120,14 +125,14 @@ export class OrderService {
 
       return product;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.confirmOrder.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
   }
 
   private async findOneByIdProduct(idProduct: string) {
-    this.logger.log(this.findOneByIdProduct.name, idProduct);
+    this.logger.log(this.findOneByIdProduct.name, { idProduct });
     try {
       const product = await this.orderRepository.findOneByIdProduct(idProduct);
 
@@ -135,25 +140,25 @@ export class OrderService {
 
       return product;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.findOneByIdProduct.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
   }
 
   async addProduct(addProductDto: AddProductDto) {
-    this.logger.log(this.addProduct.name, addProductDto);
+    this.logger.log(this.addProduct.name, { addProductDto });
     try {
       return await this.orderRepository.addProduct(addProductDto);
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.addProduct.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
   }
 
   async removeProduct(removeProductDto: RemoveProductDto) {
-    this.logger.log(this.removeProduct.name, removeProductDto);
+    this.logger.log(this.removeProduct.name, { removeProductDto });
     try {
       const product = await this.orderRepository.removeProduct(
         removeProductDto.idProduct,
@@ -163,7 +168,7 @@ export class OrderService {
 
       return product;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.removeProduct.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }
@@ -173,7 +178,7 @@ export class OrderService {
     idProduct: string,
     statusProductEnum: StatusProductEnum,
   ) {
-    this.logger.log(this.changeStatus.name, idProduct, statusProductEnum);
+    this.logger.log(this.changeStatus.name, { idProduct, statusProductEnum });
     try {
       const product = await this.orderRepository.changeStatus(
         idProduct,
@@ -184,7 +189,7 @@ export class OrderService {
 
       return product;
     } catch (error: any) {
-      this.logger.error(error);
+      loggerError(error, this.logger, this.changeStatus.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
       throw new RpcException(error.message);
     }

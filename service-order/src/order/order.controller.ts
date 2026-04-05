@@ -14,6 +14,7 @@ import { Message, Channel } from 'amqplib';
 import { RemoveProductDto } from './dtos/remove-product.dto';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
+import { catchWithMessageResilience } from 'src/utils/catch-with-message-resilience';
 
 @Controller('order')
 export class OrderController {
@@ -27,9 +28,13 @@ export class OrderController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    const paymenteIntent = await this.orderService.buyProduct(buyProductDto);
-    channel.ack(originalMsg);
-    return paymenteIntent;
+    try {
+      const paymenteIntent = await this.orderService.buyProduct(buyProductDto);
+      channel.ack(originalMsg);
+      return paymenteIntent;
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('reversalProduct-order')
@@ -40,8 +45,12 @@ export class OrderController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.orderService.reversalProduct(reversalProductDto);
-    channel.ack(originalMsg);
+    try {
+      await this.orderService.reversalProduct(reversalProductDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('addProduct-order')
@@ -52,8 +61,12 @@ export class OrderController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.orderService.addProduct(addProductDto);
-    channel.ack(originalMsg);
+    try {
+      await this.orderService.addProduct(addProductDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('removeProduct-order')
@@ -64,8 +77,12 @@ export class OrderController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.orderService.removeProduct(removeProductDto);
-    channel.ack(originalMsg);
+    try {
+      await this.orderService.removeProduct(removeProductDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('confirmOrder-order')
@@ -76,8 +93,12 @@ export class OrderController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.orderService.confirmOrder(confirmOrderDto);
-    channel.ack(originalMsg);
+    try {
+      await this.orderService.confirmOrder(confirmOrderDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 
   @EventPattern('rollbackOrder-order')
@@ -88,7 +109,11 @@ export class OrderController {
     const channel = ctx.getChannelRef() as Channel;
     const originalMsg = ctx.getMessage() as Message;
 
-    await this.orderService.rollback(rollbackOrderDto);
-    channel.ack(originalMsg);
+    try {
+      await this.orderService.rollback(rollbackOrderDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
   }
 }

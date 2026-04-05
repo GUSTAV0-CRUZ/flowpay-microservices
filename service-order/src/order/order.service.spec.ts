@@ -32,6 +32,7 @@ describe('OrderService', () => {
             findOneByIdProduct: jest.fn(),
             changeStatus: jest.fn(),
             addProduct: jest.fn(),
+            removeProduct: jest.fn(),
           },
         },
         {
@@ -319,6 +320,48 @@ describe('OrderService', () => {
       });
 
       await expect(orderService.addProduct({} as any)).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
+
+  describe('removeProduct', () => {
+    it('should return product', async () => {
+      const idProduct = 'idProduct123';
+      const status = StatusProductEnum.SOLDOUT;
+      const price = 1200;
+
+      jest.spyOn(orderRepository, 'removeProduct').mockResolvedValue({
+        idProduct,
+        status,
+        price,
+      } as any);
+
+      const result = await orderService.removeProduct({
+        idProduct,
+      });
+
+      expect(orderRepository.removeProduct).toHaveBeenCalledWith(idProduct);
+
+      expect(result).toEqual({
+        idProduct,
+        status,
+        price,
+      });
+    });
+
+    it('should return error: Product not found', async () => {
+      await expect(orderService.removeProduct({} as any)).rejects.toThrow(
+        'Product not found',
+      );
+    });
+
+    it('should return generic error: RpcException', async () => {
+      jest.spyOn(orderRepository, 'removeProduct').mockRejectedValue(() => {
+        throw new Error();
+      });
+
+      await expect(orderService.removeProduct({} as any)).rejects.toThrow(
         RpcException,
       );
     });

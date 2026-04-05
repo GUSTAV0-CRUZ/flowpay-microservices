@@ -60,7 +60,32 @@ export class OrderService {
     }
   }
 
-  async reversalProduct(reversalProductDto: ReversalProductDto) {}
+  async reversalProduct(reversalProductDto: ReversalProductDto) {
+    this.logger.log(this.reversalProduct.name, reversalProductDto);
+    try {
+      const { idProduct, status } = await this.findOneByIdProduct(
+        reversalProductDto.idProduct,
+      );
+
+      if (status !== StatusProductEnum.SOLDOUT)
+        throw new RpcException('Product not SOLDOUT');
+
+      this.servicePaymentClientProxy.emit('refund', idProduct);
+
+      await this.changeStatus(idProduct, StatusProductEnum.AVAILABLE);
+
+      this.inventoryProductClientProxy.emit('changeStatus-inventory', {
+        id: idProduct,
+        changeStatusDto: StatusProductEnum.AVAILABLE,
+      });
+
+      return idProduct;
+    } catch (error: any) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+      throw new RpcException(error.message);
+    }
+  }
 
   async rollback() {}
 

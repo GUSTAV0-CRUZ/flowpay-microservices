@@ -2,14 +2,22 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ChangeStatusDto } from './dtos/change-status.dto';
 import { ProductRepository } from './repository/product.repository';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { loggerError } from '../utils/logger-error';
+import { ClientProxyService } from '../client-proxy/client-proxy.service';
 
 @Injectable()
 export class InventoryProductService {
   private readonly logger = new Logger(InventoryProductService.name);
+  private serviceOrderClientProxy: ClientProxy;
 
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(
+    private readonly productRepository: ProductRepository,
+    clientProxyService: ClientProxyService,
+  ) {
+    this.serviceOrderClientProxy =
+      clientProxyService.getClientProxyServiceOrder();
+  }
 
   async findAll() {
     this.logger.log(`method: ${this.findAll.name}`);

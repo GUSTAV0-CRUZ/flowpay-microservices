@@ -10,7 +10,7 @@ import { ClientProxyService } from '../client-proxy/client-proxy.service';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
-import { loggerError } from 'src/utils/logger-error';
+import { loggerError } from '../utils/logger-error';
 
 @Injectable()
 export class OrderService {

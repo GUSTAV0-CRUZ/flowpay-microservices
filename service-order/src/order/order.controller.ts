@@ -14,7 +14,7 @@ import { Message, Channel } from 'amqplib';
 import { RemoveProductDto } from './dtos/remove-product.dto';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
-import { catchWithMessageResilience } from 'src/utils/catch-with-message-resilience';
+import { catchWithMessageResilience } from '../utils/catch-with-message-resilience';
 
 @Controller('order')
 export class OrderController {

@@ -8,6 +8,7 @@ import { RemoveProductDto } from './dtos/remove-product.dto';
 import { StatusProductEnum } from './enums/status-product.enum';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
 import { lastValueFrom } from 'rxjs';
+import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -89,7 +90,26 @@ export class OrderService {
 
   async rollback() {}
 
-  async confirmOrder() {}
+  async confirmOrder(confirmOrderDto: ConfirmOrderDto) {
+    this.logger.log(this.confirmOrder.name, confirmOrderDto.idProduct);
+    try {
+      const product = await this.changeStatus(
+        confirmOrderDto.idProduct,
+        StatusProductEnum.SOLDOUT,
+      );
+
+      this.inventoryProductClientProxy.emit('changeStatus-inventory', {
+        id: confirmOrderDto.idProduct,
+        changeStatusDto: StatusProductEnum.SOLDOUT,
+      });
+
+      return product;
+    } catch (error: any) {
+      this.logger.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+      throw new RpcException(error.message);
+    }
+  }
 
   private async findOneByIdProduct(idProduct: string) {
     this.logger.log(this.findOneByIdProduct.name, idProduct);

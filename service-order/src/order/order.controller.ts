@@ -12,6 +12,7 @@ import { AddProductDto } from './dtos/add-product.dto';
 import { OrderService } from './order.service';
 import { Message, Channel } from 'amqplib';
 import { RemoveProductDto } from './dtos/remove-product.dto';
+import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 
 @Controller('order')
 export class OrderController {
@@ -63,6 +64,18 @@ export class OrderController {
     const originalMsg = ctx.getMessage() as Message;
 
     await this.orderService.removeProduct(removeProductDto);
+    channel.ack(originalMsg);
+  }
+
+  @EventPattern('confirmOrder-order')
+  async confirmOrder(
+    @Payload() confirmOrderDto: ConfirmOrderDto,
+    @Ctx() ctx: RmqContext,
+  ) {
+    const channel = ctx.getChannelRef() as Channel;
+    const originalMsg = ctx.getMessage() as Message;
+
+    await this.orderService.confirmOrder(confirmOrderDto);
     channel.ack(originalMsg);
   }
 }

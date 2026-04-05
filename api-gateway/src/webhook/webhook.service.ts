@@ -29,13 +29,13 @@ export class WebhookService {
 
     if (event.type === 'payment_intent.succeeded') {
       return this.servicePaymentClientProxy.emit('payment-succeeded', {
-        paymentIntentId: event.data.object,
+        paymentIntentId: event.data.object.id,
       });
     }
 
     if (event.type === 'payment_intent.payment_failed') {
       return this.servicePaymentClientProxy.emit('payment-failed', {
-        paymentIntentId: event?.data?.object,
+        paymentIntentId: event?.data?.object.id,
       });
     }
   }

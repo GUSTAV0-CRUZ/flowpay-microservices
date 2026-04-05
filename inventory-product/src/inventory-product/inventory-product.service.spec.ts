@@ -5,6 +5,7 @@ import { InventoryProductService } from './inventory-product.service';
 import { ProductRepository } from './repository/product.repository';
 import { StatusProductEnum } from './enums/status-product.enum';
 import { RpcException } from '@nestjs/microservices';
+import { ClientProxyService } from '../client-proxy/client-proxy.service';
 
 const createProduct = () => ({
   name: 'anyName',
@@ -14,6 +15,11 @@ const createProduct = () => ({
 describe('InventoryProductService', () => {
   let inventoryProductService: InventoryProductService;
   let productRepository: ProductRepository;
+
+  const serviceOrderClientProxy = {
+    emit: jest.fn(),
+    send: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +34,12 @@ describe('InventoryProductService', () => {
             createProduct: jest.fn(),
             deleteProduct: jest.fn(),
             changeStatus: jest.fn(),
+          },
+        },
+        {
+          provide: ClientProxyService,
+          useValue: {
+            getClientProxyServiceOrder: () => serviceOrderClientProxy,
           },
         },
       ],

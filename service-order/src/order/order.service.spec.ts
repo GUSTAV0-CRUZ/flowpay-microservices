@@ -31,6 +31,7 @@ describe('OrderService', () => {
           useValue: {
             findOneByIdProduct: jest.fn(),
             changeStatus: jest.fn(),
+            addProduct: jest.fn(),
           },
         },
         {
@@ -221,11 +222,9 @@ describe('OrderService', () => {
     });
 
     it('should return generic error: RpcException', async () => {
-      jest
-        .spyOn(orderRepository, 'findOneByIdProduct')
-        .mockRejectedValue(() => {
-          throw new Error();
-        });
+      jest.spyOn(orderRepository, 'changeStatus').mockRejectedValue(() => {
+        throw new Error();
+      });
 
       await expect(orderService.rollback({} as any)).rejects.toThrow(
         RpcException,
@@ -273,13 +272,53 @@ describe('OrderService', () => {
     });
 
     it('should return generic error: RpcException', async () => {
-      jest
-        .spyOn(orderRepository, 'findOneByIdProduct')
-        .mockRejectedValue(() => {
-          throw new Error();
-        });
+      jest.spyOn(orderRepository, 'changeStatus').mockRejectedValue(() => {
+        throw new Error();
+      });
 
       await expect(orderService.confirmOrder({} as any)).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
+
+  describe('addProduct', () => {
+    it('should return product', async () => {
+      const idProduct = 'idProduct123';
+      const status = StatusProductEnum.SOLDOUT;
+      const price = 1200;
+
+      jest.spyOn(orderRepository, 'addProduct').mockResolvedValue({
+        idProduct,
+        status,
+        price,
+      } as any);
+
+      const result = await orderService.addProduct({
+        idProduct,
+        status,
+        price,
+      });
+
+      expect(orderRepository.addProduct).toHaveBeenCalledWith({
+        idProduct,
+        status,
+        price,
+      });
+
+      expect(result).toEqual({
+        idProduct,
+        status,
+        price,
+      });
+    });
+
+    it('should return generic error: RpcException', async () => {
+      jest.spyOn(orderRepository, 'addProduct').mockRejectedValue(() => {
+        throw new Error();
+      });
+
+      await expect(orderService.addProduct({} as any)).rejects.toThrow(
         RpcException,
       );
     });

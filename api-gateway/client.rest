@@ -42,10 +42,19 @@ Content-Type: application/json
 ### service orde
 
 ###
-# @name serviceOrderPost
+# @name serviceOrderBuyPost
 POST {{baseUrl}}/order/buyProduct
 Content-Type: application/json
 
 {
   "idProduct": "69cbf8c78638337c910bee74"
+}
+
+###
+# @name serviceOrderReversalPost
+POST {{baseUrl}}/order/reversalProduct
+Content-Type: application/json
+
+{
+  "idProduct": "69d30901c76d2a4a07de17d4"
 }

@@ -74,4 +74,20 @@ export class PaymentController {
       catchWithMessageResilience(error, channel, originalMsg);
     }
   }
+
+  @EventPattern('payment-canceled')
+  async paymentCanceled(
+    @Payload() paymentWebhookDto: PaymentWebhookDto,
+    @Ctx() ctx: RmqContext,
+  ) {
+    const channel = ctx.getChannelRef() as Channel;
+    const originalMsg = ctx.getMessage() as Message;
+
+    try {
+      await this.paymentService.paymentCanceled(paymentWebhookDto);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
+  }
 }

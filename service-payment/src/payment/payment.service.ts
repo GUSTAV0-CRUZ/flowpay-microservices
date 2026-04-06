@@ -23,9 +23,7 @@ export class PaymentService {
   }
 
   async payment(paymentDto: PaymentDto) {
-    this.logger.log(
-      `Method: ${this.payment.name}, args: ${JSON.stringify(paymentDto)}`,
-    );
+    this.logger.log(`Method: ${this.payment.name}`, { paymentDto });
     const { amount, idProduct } = paymentDto;
     const currency = 'brl';
     const amountInCents = amount * 100;
@@ -44,7 +42,7 @@ export class PaymentService {
   }
 
   async refund(idProduct: string) {
-    this.logger.log(this.refund.name, idProduct);
+    this.logger.log(this.refund.name, { idProduct });
     try {
       const historyPayment = await this.findByIdProductStatusPaid(idProduct);
       const { idPaymentIntent } = historyPayment;
@@ -124,7 +122,7 @@ export class PaymentService {
   }
 
   async paymentSucceeded(paymentWebhookDto: PaymentWebhookDto) {
-    this.logger.log(this.paymentSucceeded.name, paymentWebhookDto);
+    this.logger.log(this.paymentSucceeded.name, { paymentWebhookDto });
 
     try {
       const historyPayment = await this.updateStatusHistoryPayment(
@@ -145,12 +143,34 @@ export class PaymentService {
   }
 
   async paymentFailed(paymentWebhookDto: PaymentWebhookDto) {
-    this.logger.log(this.paymentFailed.name, paymentWebhookDto);
+    this.logger.log(this.paymentFailed.name, { paymentWebhookDto });
     try {
       const historyPayment = await this.updateStatusHistoryPayment(
         paymentWebhookDto.paymentIntentId,
         StatusPaymentEnum.FAILED,
       );
+
+      await this.stripeService.cancelPayment(paymentWebhookDto.paymentIntentId);
+
+      return historyPayment;
+    } catch (error: any) {
+      loggerError(error, this.logger, this.paymentFailed.name);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      throw new RpcException(error.message);
+    }
+  }
+
+  async paymentCanceled(paymentWebhookDto: PaymentWebhookDto) {
+    this.logger.log(this.paymentCanceled.name, { paymentWebhookDto });
+    try {
+      const historyPayment = await this.updateStatusHistoryPayment(
+        paymentWebhookDto.paymentIntentId,
+        StatusPaymentEnum.CANCELED,
+      );
+
+      this.serviceOrderClientProxy.emit('rollbackOrder-order', {
+        idProduct: historyPayment.idProduct,
+      });
 
       return historyPayment;
     } catch (error: any) {

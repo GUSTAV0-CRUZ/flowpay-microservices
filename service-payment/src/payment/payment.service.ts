@@ -6,7 +6,7 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { StripeService } from '../stripe/stripe.service';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
 import { loggerError } from '../utils/logger-error';
-import { ClientProxyService } from 'src/client-proxy/client-proxy.service';
+import { ClientProxyService } from '../client-proxy/client-proxy.service';
 
 @Injectable()
 export class PaymentService {

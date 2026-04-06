@@ -6,6 +6,7 @@ import { HistoryPaymentRepository } from './repository/history-payment.repositor
 import { StripeService } from '../stripe/stripe.service';
 import { RpcException } from '@nestjs/microservices';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
+import { ClientProxyService } from '../client-proxy/client-proxy.service';
 
 const createHistoryPayment = () => ({
   amount: 123,
@@ -18,6 +19,11 @@ describe('PaymentService', () => {
   let paymentService: PaymentService;
   let historyPaymentRepository: HistoryPaymentRepository;
   let stripeService: StripeService;
+
+  const serviceOrderClientProxy = {
+    emit: jest.fn(),
+    send: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,6 +42,12 @@ describe('PaymentService', () => {
           useValue: {
             createPaymentIntent: jest.fn(),
             refundPayment: jest.fn(),
+          },
+        },
+        {
+          provide: ClientProxyService,
+          useValue: {
+            getClientProxyServiceOrder: () => serviceOrderClientProxy,
           },
         },
       ],

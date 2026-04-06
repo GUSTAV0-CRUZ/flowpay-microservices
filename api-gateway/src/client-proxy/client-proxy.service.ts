@@ -31,4 +31,17 @@ export class ClientProxyService {
       },
     });
   }
+
+  getClientProxyServiceOrder() {
+    return ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: [String(this.configService.get('REBBITMQ_URL'))],
+        queue: 'service-order',
+        queueOptions: {
+          durable: true,
+        },
+      },
+    });
+  }
 }

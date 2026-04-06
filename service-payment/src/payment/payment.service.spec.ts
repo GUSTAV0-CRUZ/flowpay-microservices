@@ -42,6 +42,7 @@ describe('PaymentService', () => {
           useValue: {
             createPaymentIntent: jest.fn(),
             refundPayment: jest.fn(),
+            cancelPayment: jest.fn(),
           },
         },
         {
@@ -202,6 +203,7 @@ describe('PaymentService', () => {
       jest
         .spyOn(historyPaymentRepository, 'updateStatus')
         .mockResolvedValue(historyPayment as any);
+      jest.spyOn(stripeService, 'cancelPayment');
 
       const result = await paymentService.paymentFailed({
         paymentIntentId: historyPayment.idPaymentIntent,
@@ -210,6 +212,9 @@ describe('PaymentService', () => {
       expect(historyPaymentRepository.updateStatus).toHaveBeenCalledWith(
         historyPayment.idPaymentIntent,
         StatusPaymentEnum.FAILED,
+      );
+      expect(stripeService.cancelPayment).toHaveBeenCalledWith(
+        historyPayment.idPaymentIntent,
       );
       expect(result).toEqual(historyPayment);
     });

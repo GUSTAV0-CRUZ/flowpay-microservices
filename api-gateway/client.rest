@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:8080
 
 ### inventory Product
 
@@ -8,7 +8,7 @@ GET {{baseUrl}}/inventory-product
 
 ###
 # @name inventoryProductGetOne
-GET {{baseUrl}}/inventory-product/69cbe2736f4f01e78e83c3f8
+GET {{baseUrl}}/inventory-product/69d3c9b490673d15207b953b
 
 ###
 # @name inventoryProductGetAllPerStatus
@@ -27,7 +27,7 @@ Content-Type: application/json
 
 ###
 # @name inventoryProductDelete
-DELETE  {{baseUrl}}/inventory-product/69d30651c76d2a4a07de17cb
+DELETE  {{baseUrl}}/inventory-product/69d3c9b490673d15207b953b
 
 ###
 # @name inventoryProductPatch
@@ -47,7 +47,7 @@ POST {{baseUrl}}/order/buyProduct
 Content-Type: application/json
 
 {
-  "idProduct": "69cbf8c78638337c910bee74"
+  "idProduct": "69d3c9b490673d15207b953b"
 }
 
 ###

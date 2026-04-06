@@ -6,7 +6,7 @@ import { raw } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use('/webhook/payment-strapi', raw({ type: 'application/json' }));
+  app.use('/webhook/payment-stripe', raw({ type: 'application/json' }));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

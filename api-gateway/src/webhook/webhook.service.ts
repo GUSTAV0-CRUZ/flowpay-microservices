@@ -38,5 +38,11 @@ export class WebhookService {
         paymentIntentId: event?.data?.object.id,
       });
     }
+
+    if (event.type === 'payment_intent.canceled') {
+      return this.servicePaymentClientProxy.emit('payment-canceled', {
+        paymentIntentId: event?.data?.object.id,
+      });
+    }
   }
 }

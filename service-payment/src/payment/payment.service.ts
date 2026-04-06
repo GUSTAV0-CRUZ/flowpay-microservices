@@ -174,7 +174,7 @@ export class PaymentService {
 
       return historyPayment;
     } catch (error: any) {
-      loggerError(error, this.logger, this.paymentFailed.name);
+      loggerError(error, this.logger, this.paymentCanceled.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }

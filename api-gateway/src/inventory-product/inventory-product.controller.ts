@@ -22,7 +22,10 @@ export class InventoryProductController {
     return this.serviceInventoryProduct.send('findOne-inventory', id);
   }
 
-  // remove methods after tests and development //////////////////////////////////////////
+  //////////////////////////////////////////////////
+  // For testing purposes only, it should be enabled
+  // for only one user with an admin role.
+
   // remove-me
   @Get()
   findAll() {

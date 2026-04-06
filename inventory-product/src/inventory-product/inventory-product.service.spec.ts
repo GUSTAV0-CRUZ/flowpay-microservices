@@ -7,9 +7,12 @@ import { StatusProductEnum } from './enums/status-product.enum';
 import { RpcException } from '@nestjs/microservices';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
 
-const createProduct = () => ({
-  name: 'anyName',
+const createProduct = (name?: string, price?: number, code?: string) => ({
+  name: name ?? 'anyName',
   status: StatusProductEnum.AVAILABLE,
+  _id: 'idProduct123',
+  price: price ?? 1200,
+  code: code ?? 'code123',
 });
 
 describe('InventoryProductService', () => {
@@ -156,18 +159,29 @@ describe('InventoryProductService', () => {
   });
   describe('createProduct', () => {
     it('shold return new product', async () => {
-      const product = createProduct();
       const dto = { name: 'any', price: 77, code: 'anyCode123' };
+      const product = createProduct(dto.name, dto.price, dto.code);
 
       jest.spyOn(productRepository, 'createProduct').mockResolvedValue({
         ...product,
         ...dto,
       } as any);
 
+      jest.spyOn(serviceOrderClientProxy, 'emit');
+
       const result = await inventoryProductService.createProduct(dto);
 
       expect(productRepository.createProduct).toHaveBeenCalledTimes(1);
       expect(productRepository.createProduct).toHaveBeenCalledWith(dto);
+      expect(serviceOrderClientProxy.emit).toHaveBeenCalledWith(
+        'addProduct-order',
+        {
+          idProduct: product._id,
+          status: product.status,
+          price: product.price,
+        },
+      );
+
       expect(result).toEqual({ ...product, ...dto });
     });
 

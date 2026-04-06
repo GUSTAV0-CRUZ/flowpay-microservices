@@ -5,6 +5,7 @@ import { HistoryPaymentRepository } from './repository/history-payment.repositor
 import { MongooseModule } from '@nestjs/mongoose';
 import { HistorySchemaPayment } from './schemas/history-payment.schema';
 import { StripeModule } from 'src/stripe/stripe.module';
+import { ClientProxyModule } from 'src/client-proxy/client-proxy.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { StripeModule } from 'src/stripe/stripe.module';
       { name: 'HistoryPayment', schema: HistorySchemaPayment },
     ]),
     StripeModule,
+    ClientProxyModule,
   ],
   controllers: [PaymentController],
   providers: [PaymentService, HistoryPaymentRepository],

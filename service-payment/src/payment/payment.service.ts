@@ -131,6 +131,11 @@ export class PaymentService {
         paymentWebhookDto.paymentIntentId,
         StatusPaymentEnum.PAID,
       );
+
+      this.serviceOrderClientProxy.emit('confirmOrder-order', {
+        idProduct: historyPayment.idProduct,
+      });
+
       return historyPayment;
     } catch (error: any) {
       loggerError(error, this.logger, this.paymentSucceeded.name);

@@ -163,6 +163,7 @@ describe('PaymentService', () => {
       jest
         .spyOn(historyPaymentRepository, 'updateStatus')
         .mockResolvedValue(historyPayment as any);
+      jest.spyOn(serviceOrderClientProxy, 'emit');
 
       const result = await paymentService.paymentSucceeded({
         paymentIntentId: historyPayment.idPaymentIntent,
@@ -171,6 +172,12 @@ describe('PaymentService', () => {
       expect(historyPaymentRepository.updateStatus).toHaveBeenCalledWith(
         historyPayment.idPaymentIntent,
         StatusPaymentEnum.PAID,
+      );
+      expect(serviceOrderClientProxy.emit).toHaveBeenCalledWith(
+        'confirmOrder-order',
+        {
+          idProduct: historyPayment.idProduct,
+        },
       );
       expect(result).toEqual(historyPayment);
     });

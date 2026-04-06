@@ -29,4 +29,10 @@ export class StripeService {
       amount,
     });
   }
+
+  cancelPayment(idPaymentIntent: string) {
+    return this.stripe.paymentIntents.cancel(idPaymentIntent, {
+      cancellation_reason: 'abandoned',
+    });
+  }
 }

@@ -2,19 +2,25 @@ import { Injectable, Logger } from '@nestjs/common';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { PaymentDto } from './dtos/payment.dto';
 import { HistoryPaymentRepository } from './repository/history-payment.repository';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { StripeService } from '../stripe/stripe.service';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
 import { loggerError } from '../utils/logger-error';
+import { ClientProxyService } from 'src/client-proxy/client-proxy.service';
 
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
+  private serviceOrderClientProxy: ClientProxy;
 
   constructor(
     private readonly historyPaymentRepository: HistoryPaymentRepository,
     private readonly stripeService: StripeService,
-  ) {}
+    clientProxyService: ClientProxyService,
+  ) {
+    this.serviceOrderClientProxy =
+      clientProxyService.getClientProxyServiceOrder();
+  }
 
   async payment(paymentDto: PaymentDto) {
     this.logger.log(

@@ -8,11 +8,11 @@ import { RpcException } from '@nestjs/microservices';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
 
-const createHistoryPayment = () => ({
+const createHistoryPayment = (status?: StatusPaymentEnum) => ({
   amount: 123,
   idProduct: 'idProduct123',
   idPaymentIntent: 'idPaymentIntent123',
-  status: StatusPaymentEnum.PENDING,
+  status: status ?? StatusPaymentEnum.PENDING,
 });
 
 describe('PaymentService', () => {
@@ -227,6 +227,40 @@ describe('PaymentService', () => {
         });
 
       await expect(paymentService.paymentFailed({} as any)).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
+
+  describe('paymentCanceled', () => {
+    it('should return historyPayment', async () => {
+      const status = StatusPaymentEnum.CANCELED;
+      const historyPayment = createHistoryPayment(status);
+
+      jest
+        .spyOn(historyPaymentRepository, 'updateStatus')
+        .mockResolvedValue(historyPayment as any);
+      jest.spyOn(stripeService, 'cancelPayment');
+
+      const result = await paymentService.paymentCanceled({
+        paymentIntentId: historyPayment.idPaymentIntent,
+      });
+
+      expect(historyPaymentRepository.updateStatus).toHaveBeenCalledWith(
+        historyPayment.idPaymentIntent,
+        StatusPaymentEnum.CANCELED,
+      );
+      expect(result).toEqual(historyPayment);
+    });
+
+    it('should return generic error: RpcException', async () => {
+      jest
+        .spyOn(historyPaymentRepository, 'updateStatus')
+        .mockImplementationOnce(() => {
+          throw new Error();
+        });
+
+      await expect(paymentService.paymentCanceled({} as any)).rejects.toThrow(
         RpcException,
       );
     });

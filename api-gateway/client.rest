@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:8080
+@baseUrl = http://localhost:3000
 
 ### inventory Product
 
@@ -20,14 +20,14 @@ POST {{baseUrl}}/inventory-product
 Content-Type: application/json
 
 {
-  "name": "tv",
-  "price": 2600,
-  "code": "codeOfProduct7"
+  "name": "box",
+  "price": 3600,
+  "code": "codeOfProduct78"
 }
 
 ###
 # @name inventoryProductDelete
-DELETE  {{baseUrl}}/inventory-product/69cc526c0002a01d7366d471
+DELETE  {{baseUrl}}/inventory-product/69d30651c76d2a4a07de17cb
 
 ###
 # @name inventoryProductPatch
@@ -36,4 +36,16 @@ Content-Type: application/json
 
 {
   "status": "RESERVED"
+}
+
+
+### service orde
+
+###
+# @name serviceOrderPost
+POST {{baseUrl}}/order/buyProduct
+Content-Type: application/json
+
+{
+  "idProduct": "69cbf8c78638337c910bee74"
 }

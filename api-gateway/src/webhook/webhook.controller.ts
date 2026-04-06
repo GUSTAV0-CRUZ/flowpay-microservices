@@ -6,7 +6,7 @@ import type { Request } from 'express';
 export class WebhookController {
   constructor(private readonly WebhookService: WebhookService) {}
 
-  @Post('payment-strapi')
+  @Post('payment-stripe')
   webhookStrapi(@Req() req: Request) {
     return this.WebhookService.webhookStrapi(req);
   }

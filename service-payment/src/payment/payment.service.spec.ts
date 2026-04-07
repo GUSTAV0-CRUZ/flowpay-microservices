@@ -25,6 +25,11 @@ describe('PaymentService', () => {
     send: jest.fn(),
   };
 
+  const servicePaymentClientProxy = {
+    emit: jest.fn(),
+    send: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -35,6 +40,7 @@ describe('PaymentService', () => {
             create: jest.fn(),
             findByIdProductStatusPaid: jest.fn(),
             updateStatus: jest.fn(),
+            findOneByIdPaymentIntent: jest.fn(),
           },
         },
         {
@@ -49,6 +55,7 @@ describe('PaymentService', () => {
           provide: ClientProxyService,
           useValue: {
             getClientProxyServiceOrder: () => serviceOrderClientProxy,
+            getClientProxyServicePayment: () => servicePaymentClientProxy,
           },
         },
       ],
@@ -77,6 +84,8 @@ describe('PaymentService', () => {
         client_secret: idPaymentIntent,
       } as any);
 
+      jest.spyOn(servicePaymentClientProxy, 'emit');
+
       const result = await paymentService.payment({
         idProduct,
         amount,
@@ -92,6 +101,13 @@ describe('PaymentService', () => {
         amount,
         currency: 'brl',
       });
+      expect(servicePaymentClientProxy.emit).toHaveBeenCalledWith(
+        'payment-expire',
+        {
+          data: 'idPaymentIntent123',
+          options: { headers: { 'x-delay': 600000 } },
+        },
+      );
       expect(result).toEqual({
         idPaymentIntent,
         clientSecret: idPaymentIntent,
@@ -261,6 +277,65 @@ describe('PaymentService', () => {
         });
 
       await expect(paymentService.paymentCanceled({} as any)).rejects.toThrow(
+        RpcException,
+      );
+    });
+  });
+
+  describe('expirePayment', () => {
+    it('should return paymentIntentId', async () => {
+      const status = StatusPaymentEnum.PENDING;
+      const historyPayment = createHistoryPayment(status);
+
+      jest
+        .spyOn(historyPaymentRepository, 'findOneByIdPaymentIntent')
+        .mockResolvedValue(historyPayment as any);
+      jest.spyOn(stripeService, 'cancelPayment');
+
+      const result = await paymentService.expirePayment(
+        historyPayment.idPaymentIntent,
+      );
+
+      expect(
+        historyPaymentRepository.findOneByIdPaymentIntent,
+      ).toHaveBeenCalledWith(historyPayment.idPaymentIntent);
+      expect(stripeService.cancelPayment).toHaveBeenCalledWith(
+        historyPayment.idPaymentIntent,
+      );
+      expect(result).toEqual(historyPayment);
+    });
+
+    it('should return error: Paiment not found', async () => {
+      jest
+        .spyOn(historyPaymentRepository, 'findOneByIdPaymentIntent')
+        .mockResolvedValue(null);
+
+      await expect(paymentService.expirePayment({} as any)).rejects.toThrow(
+        'Paiment not found',
+      );
+    });
+
+    it('should return error: Paiment not PENDING', async () => {
+      const status = StatusPaymentEnum.PAID;
+      const historyPayment = createHistoryPayment(status);
+
+      jest
+        .spyOn(historyPaymentRepository, 'findOneByIdPaymentIntent')
+        .mockResolvedValue(historyPayment as any);
+
+      await expect(paymentService.expirePayment({} as any)).rejects.toThrow(
+        'Paiment not PENDING',
+      );
+    });
+
+    it('should return generic error: RpcException', async () => {
+      jest
+        .spyOn(historyPaymentRepository, 'findOneByIdPaymentIntent')
+        .mockImplementationOnce(() => {
+          throw new Error();
+        });
+
+      await expect(paymentService.expirePayment({} as any)).rejects.toThrow(
         RpcException,
       );
     });

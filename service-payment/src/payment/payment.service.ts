@@ -214,7 +214,7 @@ export class PaymentService {
 
       await this.stripeService.cancelPayment(paymentIntentId);
 
-      return paymentIntentId;
+      return history;
     } catch (error: any) {
       loggerError(error, this.logger, this.paymentFailed.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access

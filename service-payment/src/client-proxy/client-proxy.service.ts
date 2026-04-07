@@ -10,10 +10,26 @@ export class ClientProxyService {
     return ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
-        urls: [String(this.configService.get('REBBITMQ_URL'))],
+        urls: [String(this.configService.get('RABBITMQ_URL'))],
         queue: 'service-order',
         queueOptions: {
           durable: true,
+        },
+      },
+    });
+  }
+
+  getClientProxyServicePayment() {
+    return ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: [String(this.configService.get('RABBITMQ_URL'))],
+        queue: 'service-payment',
+        queueOptions: {
+          durable: true,
+          exchange: 'service-payment-exchange',
+          exchangeType: 'x-delayed-message',
+          arguments: { 'x-delayed-type': 'direct' },
         },
       },
     });

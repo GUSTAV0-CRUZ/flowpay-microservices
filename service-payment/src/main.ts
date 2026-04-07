@@ -10,9 +10,12 @@ async function bootstrap() {
       options: {
         noAck: false,
         queue: 'service-payment',
-        urls: [String(process.env.REBBITMQ_URL)],
+        urls: [String(process.env.RABBITMQ_URL)],
         queueOptions: {
           durable: true,
+          exchange: 'service-payment-exchange',
+          exchangeType: 'x-delayed-message',
+          arguments: { 'x-delayed-type': 'direct' },
         },
       },
     },

@@ -27,9 +27,6 @@ export class ClientProxyService {
         queue: 'service-payment',
         queueOptions: {
           durable: true,
-          exchange: 'service-payment-exchange',
-          exchangeType: 'x-delayed-message',
-          arguments: { 'x-delayed-type': 'direct' },
         },
       },
     });

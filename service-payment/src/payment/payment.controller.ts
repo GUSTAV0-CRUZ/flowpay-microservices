@@ -90,4 +90,20 @@ export class PaymentController {
       catchWithMessageResilience(error, channel, originalMsg);
     }
   }
+
+  @EventPattern('payment-expire')
+  async expirePayment(
+    @Payload() paymentIntentId: string,
+    @Ctx() ctx: RmqContext,
+  ) {
+    const channel = ctx.getChannelRef() as Channel;
+    const originalMsg = ctx.getMessage() as Message;
+
+    try {
+      await this.paymentService.expirePayment(paymentIntentId);
+      channel.ack(originalMsg);
+    } catch (error) {
+      catchWithMessageResilience(error, channel, originalMsg);
+    }
+  }
 }

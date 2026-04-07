@@ -8,7 +8,7 @@ GET {{baseUrl}}/inventory-product
 
 ###
 # @name inventoryProductGetOne
-GET {{baseUrl}}/inventory-product/69d3c9b490673d15207b953b
+GET {{baseUrl}}/inventory-product/69d54423bb3f12768ffc5e3a
 
 ###
 # @name inventoryProductGetAllPerStatus
@@ -27,7 +27,7 @@ Content-Type: application/json
 
 ###
 # @name inventoryProductDelete
-DELETE  {{baseUrl}}/inventory-product/69d3c9b490673d15207b953b
+DELETE  {{baseUrl}}/inventory-product/69d54423bb3f12768ffc5e3a
 
 ###
 # @name inventoryProductPatch
@@ -47,7 +47,7 @@ POST {{baseUrl}}/order/buyProduct
 Content-Type: application/json
 
 {
-  "idProduct": "69d3c9b490673d15207b953b"
+  "idProduct": "69d54423bb3f12768ffc5e3a"
 }
 
 ###
@@ -56,5 +56,5 @@ POST {{baseUrl}}/order/reversalProduct
 Content-Type: application/json
 
 {
-  "idProduct": "69d30901c76d2a4a07de17d4"
+  "idProduct": "69d3dc54341dc60a2daa9e02"
 }

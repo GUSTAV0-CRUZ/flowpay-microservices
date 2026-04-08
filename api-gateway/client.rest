@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:8080
+@baseUrl = http://localhost:3000
 
 ### inventory Product
 
@@ -12,7 +12,7 @@ GET {{baseUrl}}/inventory-product/69d54423bb3f12768ffc5e3a
 
 ###
 # @name inventoryProductGetAllPerStatus
-GET {{baseUrl}}/inventory-product/id122344/perStatus
+GET {{baseUrl}}/inventory-product/perStatus
 
 ###
 # @name inventoryProductPost

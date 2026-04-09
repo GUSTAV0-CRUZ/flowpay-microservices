@@ -7,7 +7,7 @@ import { StripeService } from '../stripe/stripe.service';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
 import { loggerError } from '../utils/logger-error';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
-import { RabbitmqService } from 'src/rabbitmq/rabbitmq.service';
+import { RabbitmqService } from '../rabbitmq/rabbitmq.service';
 
 @Injectable()
 export class PaymentService {

@@ -7,6 +7,7 @@ import { StripeService } from '../stripe/stripe.service';
 import { RpcException } from '@nestjs/microservices';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
+import { RabbitmqService } from '../rabbitmq/rabbitmq.service';
 
 const createHistoryPayment = (status?: StatusPaymentEnum) => ({
   amount: 123,
@@ -19,13 +20,9 @@ describe('PaymentService', () => {
   let paymentService: PaymentService;
   let historyPaymentRepository: HistoryPaymentRepository;
   let stripeService: StripeService;
+  let rabbitmqService: RabbitmqService;
 
   const serviceOrderClientProxy = {
-    emit: jest.fn(),
-    send: jest.fn(),
-  };
-
-  const servicePaymentClientProxy = {
     emit: jest.fn(),
     send: jest.fn(),
   };
@@ -52,10 +49,15 @@ describe('PaymentService', () => {
           },
         },
         {
+          provide: RabbitmqService,
+          useValue: {
+            publishDelayedMessage: jest.fn(),
+          },
+        },
+        {
           provide: ClientProxyService,
           useValue: {
             getClientProxyServiceOrder: () => serviceOrderClientProxy,
-            getClientProxyServicePayment: () => servicePaymentClientProxy,
           },
         },
       ],
@@ -66,6 +68,7 @@ describe('PaymentService', () => {
       HistoryPaymentRepository,
     );
     stripeService = module.get<StripeService>(StripeService);
+    rabbitmqService = module.get<RabbitmqService>(RabbitmqService);
   });
 
   it('should be defined', () => {
@@ -84,7 +87,7 @@ describe('PaymentService', () => {
         client_secret: idPaymentIntent,
       } as any);
 
-      jest.spyOn(servicePaymentClientProxy, 'emit');
+      jest.spyOn(rabbitmqService, 'publishDelayedMessage');
 
       const result = await paymentService.payment({
         idProduct,
@@ -101,12 +104,11 @@ describe('PaymentService', () => {
         amount,
         currency: 'brl',
       });
-      expect(servicePaymentClientProxy.emit).toHaveBeenCalledWith(
+      expect(rabbitmqService.publishDelayedMessage).toHaveBeenCalledWith(
+        'service-payment-exchange',
         'payment-expire',
-        {
-          data: 'idPaymentIntent123',
-          options: { headers: { 'x-delay': 600000 } },
-        },
+        idPaymentIntent,
+        6000000,
       );
       expect(result).toEqual({
         idPaymentIntent,

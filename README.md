@@ -28,7 +28,7 @@ A aplicação simula um fluxo real de compra:
 - 📦 Reserva de produto  
 - 🔄 Confirmação ou rollback automático  
 - ⏱️ Expiração de transações pendentes  
-- 💸 Estorno de pagamento
+- 💸 Reversão de pagamento
 
 ---
 
@@ -51,8 +51,7 @@ A aplicação simula um fluxo real de compra:
 Client → API Gateway → RabbitMQ → Microservices
 ```
 
-Arquitetura orientada a eventos com comunicação totalmente assíncrona.
-
+Arquitetura orientada a eventos com comunicação assíncrona e desacoplamento total entre serviços.
 ---
 
 ## 🔄 Fluxo de Pagamento
@@ -149,14 +148,49 @@ Checkout → Install → Test → Build
 
 ## ⚙️ Decisões de Engenharia
 
-### 🔹 Idempotência
+### 🔹 Idempotência e Consistência (Stripe + DB State)
 
-- Chave única (`idPaymentIntent`)  
-- Controle de estados:
-  - PENDING
-  - PAID
-  - FAILED
-  - CANCELED  
+Um dos maiores desafios em sistemas de pagamentos distribuídos é o **Double Payment (pagamento duplicado)** causado por cliques múltiplos ou instabilidades de rede.
+
+#### O Problema
+
+Em um ambiente de microserviços, o usuário pode clicar duas vezes no botão de compra antes que o primeiro processo termine de marcar o produto como `RESERVED` no banco de dados.
+
+---
+
+#### A Solução Implementada
+
+Ao invés de utilizar mecanismos externos como cache distribuído (ex: Redis), foi adotada uma estratégia baseada em **Idempotência Nativa + Estado do Recurso**.
+
+---
+
+#### 🔐 Estratégia
+
+- **Âncora de Estado**  
+  A `idempotencyKey` enviada ao Stripe é composta por: idProduct + updatedAt
+
+
+- **Proteção de milissegundos**  
+Se dois cliques ocorrerem simultaneamente:
+- Ambos leem o mesmo `updatedAt`
+- O Stripe recebe chaves idênticas
+- Apenas **um pagamento é processado**
+- O segundo request recebe o mesmo `clientSecret`
+
+- **Invalidação automática da chave**  
+Quando o status muda para `RESERVED`, o `updatedAt` é atualizado
+
+- **Nova tentativa segura**  
+Se o pagamento falhar e o produto voltar para `AVAILABLE`, um novo `updatedAt` gera uma nova chave válida
+
+---
+
+#### ✅ Resultado
+
+- Garantia de cobrança única  
+- Nenhuma dependência de cache distribuído  
+- Consistência baseada no próprio banco  
+- Solução simples, eficiente e altamente confiável  
 
 ---
 

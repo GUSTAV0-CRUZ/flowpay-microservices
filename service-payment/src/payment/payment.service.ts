@@ -2,31 +2,26 @@ import { Injectable, Logger } from '@nestjs/common';
 import { StatusPaymentEnum } from './enums/status-payment.enum';
 import { PaymentDto } from './dtos/payment.dto';
 import { HistoryPaymentRepository } from './repository/history-payment.repository';
-import {
-  ClientProxy,
-  RmqRecordBuilder,
-  RpcException,
-} from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { StripeService } from '../stripe/stripe.service';
 import { PaymentWebhookDto } from './dtos/payment-webhook.dto';
 import { loggerError } from '../utils/logger-error';
 import { ClientProxyService } from '../client-proxy/client-proxy.service';
+import { RabbitmqService } from 'src/rabbitmq/rabbitmq.service';
 
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
   private serviceOrderClientProxy: ClientProxy;
-  private servicePaymentClientProxy: ClientProxy;
 
   constructor(
     private readonly historyPaymentRepository: HistoryPaymentRepository,
     private readonly stripeService: StripeService,
     clientProxyService: ClientProxyService,
+    private readonly rabbitmqService: RabbitmqService,
   ) {
     this.serviceOrderClientProxy =
       clientProxyService.getClientProxyServiceOrder();
-    this.servicePaymentClientProxy =
-      clientProxyService.getClientProxyServicePayment();
   }
 
   async payment(paymentDto: PaymentDto) {
@@ -41,16 +36,12 @@ export class PaymentService {
 
       await this.addHistory(idPaymentIntent, idProduct, amount, currency);
 
-      const record = new RmqRecordBuilder(idPaymentIntent)
-        .setOptions({
-          headers: {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            'x-delay': 600000 as any,
-          },
-        })
-        .build();
-
-      this.servicePaymentClientProxy.emit('payment-expire', record);
+      await this.rabbitmqService.publishDelayedMessage(
+        'service-payment-exchange',
+        'payment-expire',
+        idPaymentIntent,
+        6000000,
+      );
 
       return { idPaymentIntent, clientSecret };
     } catch (error: any) {
@@ -216,7 +207,7 @@ export class PaymentService {
 
       return history;
     } catch (error: any) {
-      loggerError(error, this.logger, this.paymentFailed.name);
+      loggerError(error, this.logger, this.expirePayment.name);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       throw new RpcException(error.message);
     }

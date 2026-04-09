@@ -18,17 +18,4 @@ export class ClientProxyService {
       },
     });
   }
-
-  getClientProxyServicePayment() {
-    return ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: [String(this.configService.get('RABBITMQ_URL'))],
-        queue: 'service-payment',
-        queueOptions: {
-          durable: true,
-        },
-      },
-    });
-  }
 }

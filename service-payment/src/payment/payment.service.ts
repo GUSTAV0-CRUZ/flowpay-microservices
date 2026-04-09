@@ -26,13 +26,17 @@ export class PaymentService {
 
   async payment(paymentDto: PaymentDto) {
     this.logger.log(`Method: ${this.payment.name}`, { paymentDto });
-    const { amount, idProduct } = paymentDto;
+    const { amount, idProduct, updatedAt } = paymentDto;
     const currency = 'brl';
     const amountInCents = amount * 100;
 
     try {
       const { id: idPaymentIntent, client_secret: clientSecret } =
-        await this.stripeService.createPaymentIntent(amountInCents, currency);
+        await this.stripeService.createPaymentIntent(
+          amountInCents,
+          currency,
+          `${idProduct}-${String(updatedAt)}`,
+        );
 
       await this.addHistory(idPaymentIntent, idProduct, amount, currency);
 

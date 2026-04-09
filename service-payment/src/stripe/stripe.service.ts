@@ -15,12 +15,21 @@ export class StripeService {
     );
   }
 
-  createPaymentIntent(amount: number, currency: string) {
-    return this.stripe.paymentIntents.create({
-      amount,
-      currency,
-      automatic_payment_methods: { enabled: true },
-    });
+  createPaymentIntent(
+    amount: number,
+    currency: string,
+    idempotencyKey: string,
+  ) {
+    return this.stripe.paymentIntents.create(
+      {
+        amount,
+        currency,
+        automatic_payment_methods: { enabled: true },
+      },
+      {
+        idempotencyKey,
+      },
+    );
   }
 
   refundPayment(idPaymentIntent: string, amount?: number) {

@@ -8,4 +8,8 @@ export class PaymentDto {
   @IsString()
   @IsMongoId()
   idProduct: string;
+
+  @IsString()
+  @IsNotEmpty()
+  updatedAt: Date;
 }

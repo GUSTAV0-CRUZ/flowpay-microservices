@@ -58,10 +58,11 @@ describe('OrderService', () => {
       const idProduct = 'idProduct123';
       const price = 1200;
       const status = StatusProductEnum.AVAILABLE;
+      const updatedAt = new Date();
 
       jest
         .spyOn(orderRepository, 'findOneByIdProduct')
-        .mockResolvedValue({ idProduct, price, status } as any);
+        .mockResolvedValue({ idProduct, price, status, updatedAt } as any);
       jest.spyOn(servicePaymentClientProxy, 'send').mockReturnValue(
         of({
           idPaymentIntent: 'idPaymentIntent',
@@ -81,6 +82,7 @@ describe('OrderService', () => {
       expect(servicePaymentClientProxy.send).toHaveBeenCalledWith('payment', {
         idProduct,
         amount: price,
+        updatedAt,
       });
       expect(orderRepository.changeStatus).toHaveBeenCalledWith(
         idProduct,

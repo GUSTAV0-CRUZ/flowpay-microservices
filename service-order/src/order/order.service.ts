@@ -11,6 +11,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { RollbackOrderDto } from './dtos/rollback-order.dto copy';
 import { loggerError } from '../utils/logger-error';
+import { Order } from './entities/order.entities';
 
 @Injectable()
 export class OrderService {
@@ -31,9 +32,8 @@ export class OrderService {
   async buyProduct(buyProductDto: BuyProductDto) {
     this.logger.log(this.buyProduct.name, { buyProductDto });
     try {
-      const { idProduct, price, status } = await this.findOneByIdProduct(
-        buyProductDto.idProduct,
-      );
+      const { idProduct, price, status, updatedAt } =
+        (await this.findOneByIdProduct(buyProductDto.idProduct)) as Order;
 
       if (status !== StatusProductEnum.AVAILABLE)
         throw new RpcException('Product not AVAILABLE');
@@ -45,6 +45,7 @@ export class OrderService {
         this.servicePaymentClientProxy.send('payment', {
           idProduct,
           amount: price,
+          updatedAt,
         }),
       );
 

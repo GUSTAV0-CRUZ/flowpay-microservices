@@ -80,6 +80,7 @@ describe('PaymentService', () => {
       const amount = 123;
       const idProduct = 'idProduct123';
       const idPaymentIntent = 'idPaymentIntent123';
+      const updatedAt = new Date();
 
       jest.spyOn(stripeService, 'createPaymentIntent').mockResolvedValue({
         id: idPaymentIntent,
@@ -92,11 +93,13 @@ describe('PaymentService', () => {
       const result = await paymentService.payment({
         idProduct,
         amount,
+        updatedAt,
       });
 
       expect(stripeService.createPaymentIntent).toHaveBeenCalledWith(
         amount * 100,
         'brl',
+        `${idProduct}-${String(updatedAt)}`,
       );
       expect(historyPaymentRepository.create).toHaveBeenCalledWith({
         idPaymentIntent,

@@ -354,7 +354,10 @@ npm run test
 <img src="https://github.com/GUSTAV0-CRUZ.png" width="100px;" />
 
 **Gustavo Cruz**  
-💼 Backend Developer (Node.js | NestJS | Microservices)  
-📧 gustavo.cruzs.dev@gmail.com  
+📧 gustavo.cruzs.dev@gmail.com
 
 🔗 https://github.com/GUSTAV0-CRUZ
+
+🔗 https://www.linkedin.com/in/gustavo-cruz-4a467b377
+
+---

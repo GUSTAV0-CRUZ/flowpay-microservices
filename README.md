@@ -35,7 +35,7 @@ A aplicação simula um fluxo real de compra:
 ## 🧨 Problemas Resolvidos
 
 - Evitar cobrança duplicada (**idempotência com chave única**)  
-- Garantir rollback em falhas (**Saga Pattern coreografado**)  
+- Garantir rollback em falhas (**Saga Pattern orquestrado**)  
 - Evitar dependência síncrona entre serviços  
 - Garantir consistência eventual entre dados  
 - Prevenir perda de mensagens em falhas de infraestrutura  
@@ -137,7 +137,7 @@ Checkout → Install → Test → Build
 
 - Arquitetura orientada a eventos  
 - RabbitMQ (mensageria)  
-- Saga Pattern (coreografado)  
+- Saga Pattern (orquestrado)  
 - Idempotência  
 - Consistência eventual  
 - ACK/NACK  
@@ -203,13 +203,13 @@ Evita perda de mensagens e loops infinitos.
 
 ---
 
-### 🔹 Saga Pattern (Coreografado)
+### 🔹 Saga Pattern (orquestrado)
 
 - Sucesso → confirmação do pedido  
 - Falha → cancelamento  
 - Cancelamento → rollback  
 
-Sem orquestrador central → baixo acoplamento.
+Service Order atuando como Orquestrador → centraliza o estado da transação e coordena as chamadas para os serviços dependentes.
 
 ---
 
